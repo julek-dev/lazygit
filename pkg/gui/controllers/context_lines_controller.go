@@ -55,12 +55,8 @@ func (self *ContextLinesController) Increase() error {
 		return err
 	}
 
-	step := self.c.UserConfig().Git.DiffContextSizeStep
-	if self.c.UserConfig().Git.DiffContextSize <= math.MaxUint64-step {
-		self.c.UserConfig().Git.DiffContextSize += step
-	} else {
-		self.c.UserConfig().Git.DiffContextSize = math.MaxUint64
-	}
+	gitConfig := &self.c.UserConfig().Git
+	gitConfig.DiffContextSize = increasedContextSize(gitConfig.DiffContextSize, gitConfig.DiffContextSizeStep)
 	return self.applyChange()
 }
 
@@ -69,15 +65,23 @@ func (self *ContextLinesController) Decrease() error {
 		return err
 	}
 
-	step := self.c.UserConfig().Git.DiffContextSizeStep
-	min := self.c.UserConfig().Git.DiffContextSizeMin
-	size := self.c.UserConfig().Git.DiffContextSize
-	if size >= step && size-step >= min {
-		self.c.UserConfig().Git.DiffContextSize = size - step
-	} else {
-		self.c.UserConfig().Git.DiffContextSize = min
-	}
+	gitConfig := &self.c.UserConfig().Git
+	gitConfig.DiffContextSize = decreasedContextSize(gitConfig.DiffContextSize, gitConfig.DiffContextSizeStep, gitConfig.DiffContextSizeMin)
 	return self.applyChange()
+}
+
+func increasedContextSize(size, step uint64) uint64 {
+	if size > math.MaxUint64-step {
+		return math.MaxUint64
+	}
+	return size + step
+}
+
+func decreasedContextSize(size, step, min uint64) uint64 {
+	if size < step || size-step < min {
+		return min
+	}
+	return size - step
 }
 
 func (self *ContextLinesController) applyChange() error {

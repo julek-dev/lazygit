@@ -409,6 +409,11 @@
           "description": "The number of lines by which the diff context size is changed when pressing the `{` and `}` keys.",
           "default": 1
         },
+        "diffContextSizeMin": {
+          "type": "integer",
+          "description": "The minimum number of lines of context that the diff context size can be decreased to with the `{` key.",
+          "default": 3
+        },
         "renameSimilarityThreshold": {
           "type": "integer",
           "maximum": 100,

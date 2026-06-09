@@ -56,6 +56,31 @@ func (self *GuiDriver) Click(x, y int) {
 	self.waitTillIdle()
 }
 
+func (self *GuiDriver) Drag(fromX, fromY, toX, toY int) {
+	self.CheckAllToastsAcknowledged()
+
+	self.gui.g.ReplayedEvents.MouseEvents <- gocui.NewTcellMouseEventWrapper(
+		tcell.NewEventMouse(fromX, fromY, tcell.ButtonPrimary, 0),
+		0,
+	)
+	self.waitTillIdle()
+	// gocui's drag detection treats the first held-button move as the start of
+	// the drag and only reports motion for subsequent events, so send the
+	// target position twice
+	for range 2 {
+		self.gui.g.ReplayedEvents.MouseEvents <- gocui.NewTcellMouseEventWrapper(
+			tcell.NewEventMouse(toX, toY, tcell.ButtonPrimary, 0),
+			0,
+		)
+		self.waitTillIdle()
+	}
+	self.gui.g.ReplayedEvents.MouseEvents <- gocui.NewTcellMouseEventWrapper(
+		tcell.NewEventMouse(toX, toY, tcell.ButtonNone, 0),
+		0,
+	)
+	self.waitTillIdle()
+}
+
 // wait until lazygit is idle (i.e. all processing is done) before continuing
 func (self *GuiDriver) waitTillIdle() {
 	<-self.isIdleChan

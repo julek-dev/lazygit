@@ -49,6 +49,12 @@ func (self *TestDriver) click(x, y int) {
 	self.Wait(self.inputDelay)
 }
 
+func (self *TestDriver) drag(fromX, fromY, toX, toY int) {
+	self.SetCaption(fmt.Sprintf("Dragging %d, %d to %d, %d", fromX, fromY, toX, toY))
+	self.gui.Drag(fromX, fromY, toX, toY)
+	self.Wait(self.inputDelay)
+}
+
 // Should only be used in specific cases where you're doing something weird!
 // E.g. invoking a global keybinding from within a popup.
 // You probably shouldn't use this function, and should instead go through a view like t.Views().Commit().Focus().Press(...)

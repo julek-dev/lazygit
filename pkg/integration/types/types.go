@@ -24,6 +24,8 @@ type IntegrationTest interface {
 type GuiDriver interface {
 	PressKey(string)
 	Click(int, int)
+	// drag the mouse from one position to another with the left button held down
+	Drag(fromX int, fromY int, toX int, toY int)
 	Keys() config.KeybindingConfig
 	CurrentContext() types.Context
 	ContextForView(viewName string) types.Context

@@ -52,6 +52,12 @@ var ClickToStageLines = NewIntegrationTest(NewIntegrationTestArgs{
 		t.Views().Staging().
 			Click(1, 9). // '+six'
 			IsFocused().
-			SelectedLines(Contains("+six"))
+			SelectedLines(Contains("+six")).
+			// dragging the mouse selects a range of lines
+			Drag(1, 8, 1, 9). // '+five' to '+six'
+			SelectedLines(
+				Contains("+five"),
+				Contains("+six"),
+			)
 	},
 })

@@ -68,6 +68,10 @@ var DisableClickToStageLines = NewIntegrationTest(NewIntegrationTestArgs{
 			// click '+six'; the selection stays on '+five', the first changed line
 			Click(1, 9).
 			IsFocused().
+			SelectedLines(Contains("+five")).
+			// dragging from '+five' to '+six' would normally select that range;
+			// with the option set it's a no-op too
+			Drag(1, 8, 1, 9).
 			SelectedLines(Contains("+five"))
 	},
 })

@@ -34,6 +34,11 @@ func (self *fakeGuiDriver) Click(x, y int) {
 	self.clickedCoordinates = append(self.clickedCoordinates, coordinate{x: x, y: y})
 }
 
+func (self *fakeGuiDriver) Drag(fromX, fromY, toX, toY int) {
+	self.clickedCoordinates = append(self.clickedCoordinates,
+		coordinate{x: fromX, y: fromY}, coordinate{x: toX, y: toY})
+}
+
 func (self *fakeGuiDriver) Keys() config.KeybindingConfig {
 	return config.KeybindingConfig{}
 }

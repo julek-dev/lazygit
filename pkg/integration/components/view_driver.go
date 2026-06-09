@@ -440,6 +440,16 @@ func (self *ViewDriver) Click(x, y int) *ViewDriver {
 	return self
 }
 
+// drag the mouse from one position to another within the view with the left
+// button held down
+func (self *ViewDriver) Drag(fromX, fromY, toX, toY int) *ViewDriver {
+	offsetX, offsetY, _, _ := self.getView().Dimensions()
+
+	self.t.drag(offsetX+1+fromX, offsetY+1+fromY, offsetX+1+toX, offsetY+1+toY)
+
+	return self
+}
+
 // i.e. pressing down arrow
 func (self *ViewDriver) SelectNextItem() *ViewDriver {
 	return self.PressFast(self.t.keys.Universal.NextItem)

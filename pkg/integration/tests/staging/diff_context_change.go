@@ -9,7 +9,10 @@ var DiffContextChange = NewIntegrationTest(NewIntegrationTestArgs{
 	Description:  "Change the number of diff context lines while in the staging panel",
 	ExtraCmdArgs: []string{},
 	Skip:         false,
-	SetupConfig:  func(config *config.AppConfig) {},
+	SetupConfig: func(config *config.AppConfig) {
+		// this test goes all the way down to zero context lines
+		config.GetUserConfig().Git.DiffContextSizeMin = 0
+	},
 	SetupRepo: func(shell *Shell) {
 		// need to be working with a few lines so that git perceives it as two separate hunks
 		shell.CreateFileAndAdd("file1", "1a\n2a\n3a\n4a\n5a\n6a\n7a\n8a\n9a\n10a\n11a\n12a\n13a\n14a\n15a")

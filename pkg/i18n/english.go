@@ -860,6 +860,7 @@ type TranslationSet struct {
 	DecreaseContextInDiffView                string
 	DecreaseContextInDiffViewTooltip         string
 	DiffContextSizeChanged                   string
+	DiffContextSizeAtMinimum                 string
 	IncreaseRenameSimilarityThreshold        string
 	IncreaseRenameSimilarityThresholdTooltip string
 	DecreaseRenameSimilarityThreshold        string
@@ -2075,6 +2076,7 @@ func EnglishTranslationSet() *TranslationSet {
 		DecreaseContextInDiffView:                "Decrease diff context size",
 		DecreaseContextInDiffViewTooltip:         "Decrease the amount of the context shown around changes in the diff view.\n\nThe default can be changed in the config file with the key 'git.diffContextSize'.",
 		DiffContextSizeChanged:                   "Changed diff context size to %d",
+		DiffContextSizeAtMinimum:                 "The diff context size can't be decreased further (minimum: {{.minimum}})",
 		IncreaseRenameSimilarityThresholdTooltip: "Increase the similarity threshold for a deletion and addition pair to be treated as a rename.\n\nThe default can be changed in the config file with the key 'git.renameSimilarityThreshold'.",
 		IncreaseRenameSimilarityThreshold:        "Increase rename similarity threshold",
 		DecreaseRenameSimilarityThresholdTooltip: "Decrease the similarity threshold for a deletion and addition pair to be treated as a rename.\n\nThe default can be changed in the config file with the key 'git.renameSimilarityThreshold'.",

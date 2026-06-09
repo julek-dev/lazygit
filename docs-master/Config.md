@@ -512,11 +512,16 @@ git:
 
   # The number of lines of context to show around each diff hunk. Can be changed
   # from within Lazygit with the `{` and `}` keys.
+  # The `{` key doesn't decrease it below diffContextSizeMin.
   diffContextSize: 3
 
   # The number of lines by which the diff context size is changed when pressing
   # the `{` and `}` keys.
   diffContextSizeStep: 1
+
+  # The minimum number of lines of context that the diff context size can be
+  # decreased to with the `{` key.
+  diffContextSizeMin: 3
 
   # The threshold for considering a file to be renamed, in percent. Can be changed
   # from within Lazygit with the `(` and `)` keys.

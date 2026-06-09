@@ -16,6 +16,8 @@ var KeepPositionWhenTheSelectionIsOffScreen = NewIntegrationTest(NewIntegrationT
 	Height:       30,
 	SetupConfig: func(cfg *config.AppConfig) {
 		cfg.GetUserConfig().Gui.UseHunkModeInDiffView = false
+		// This test decreases the context below the default minimum, so lift it.
+		cfg.GetUserConfig().Git.DiffContextSizeMin = 0
 		// Half a diff per scroll, to leave the selection well behind in two presses.
 		cfg.GetUserConfig().Gui.ScrollHeight = 15
 	},

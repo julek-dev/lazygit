@@ -106,6 +106,20 @@ func (self *DiffLineHelper) PlaceNavigationTarget(
 	self.ShowSelectionAtLine(view, target, true)
 }
 
+// ScrollNavigationTargetToTop brings the row a jump found to the top of the view, or as
+// close to the top as the end of the diff allows, and the view back to its left edge,
+// as PlaceNavigationTarget does for a pane with no selection; a selection stays on the
+// line it is on.
+func (self *DiffLineHelper) ScrollNavigationTargetToTop(pane types.DiffPaneContext, target int) {
+	view := pane.GetView()
+	view.SetOriginX(0)
+	if delta := originYWithTargetAtTop(pane, target) - view.OriginY(); delta > 0 {
+		view.ScrollDown(delta)
+	} else {
+		view.ScrollUp(-delta)
+	}
+}
+
 // scrollTargetToTop scrolls the given row of the diff to the top of the view, leaving
 // the view where it is when that row is on screen already.
 func (self *DiffLineHelper) scrollTargetToTop(pane types.DiffPaneContext, target int) {

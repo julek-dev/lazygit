@@ -69,6 +69,15 @@ gui:
   # requiring you to hold the option key when on macOS.
   mouseEvents: true
 
+  # If true, clicking or dragging in a diff in the main view neither focuses it
+  # nor changes its selection, so selecting lines to stage or patch can only be
+  # done with keys (e.g. `enter` on a file, or `0`, and then the arrow keys).
+  # Clicking a file name in a diff's diffstat only scrolls to that file.
+  # Mouse scrolling, alt- or shift-clicking a line to open it in your editor, and
+  # clicking the main view when it shows something other than a diff are
+  # unaffected.
+  disableClickToStageLines: false
+
   # If true, do not show a warning when amending a commit.
   skipAmendWarning: false
 

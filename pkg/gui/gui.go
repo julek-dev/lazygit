@@ -946,6 +946,13 @@ func viewsBelongToSamePopupPanel(viewName string, otherViewName string) bool {
 	})
 }
 
+// isMainPaneShowingADiff reports whether the view is a pane of the main window showing
+// the panel's diff, rather than e.g. a message or a branch's log.
+func (gui *Gui) isMainPaneShowingADiff(view *gocui.View) bool {
+	pane := gui.mainContextForView(view)
+	return pane != nil && pane.ContentIsDiff()
+}
+
 // Run: setup the gui with keybindings and start the mainloop
 func (gui *Gui) Run(startArgs appTypes.StartArgs) error {
 	g, err := gui.initGocui(Headless(), startArgs.IntegrationTest)
@@ -983,6 +990,16 @@ func (gui *Gui) Run(startArgs appTypes.StartArgs) error {
 			if !viewsBelongToSamePopupPanel(gui.currentViewName(), view.Name()) {
 				return false
 			}
+		}
+
+		if gui.c.UserConfig().Gui.DisableClickToStageLines && gui.isMainPaneShowingADiff(view) &&
+			!gocui.IsMouseScrollKey(key) && key != gocui.MouseRelease {
+			// Such an event would focus the diff or change its selection. gocui moves the
+			// view's cursor to where it lands before any binding sees it, and a focused
+			// diff draws its selection at the cursor. The rest of the gesture goes too,
+			// so that a drag that starts here doesn't act on the views it moves over.
+			gui.g.CancelMouseCapture()
+			return false
 		}
 
 		return true

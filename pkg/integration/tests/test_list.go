@@ -660,6 +660,8 @@ var tests = []*components.IntegrationTest{
 	ui.BackgroundRefreshKeepsScrollPosition,
 	ui.BranchesNotFirstTab,
 	ui.CommitsNotFirstTab,
+	ui.DisableClickToStageLines,
+	ui.DisableClickToStageLinesInADiffStat,
 	ui.DisableSwitchTabWithPanelJumpKeys,
 	ui.DragBeyondViewport,
 	ui.EmptyMenu,

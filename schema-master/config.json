@@ -584,6 +584,11 @@
           "description": "If true, capture mouse events.\nWhen mouse events are captured, it's a little harder to select text: e.g. requiring you to hold the option key when on macOS.",
           "default": true
         },
+        "disableClickToStageLines": {
+          "type": "boolean",
+          "description": "If true, clicking or dragging in a diff in the main view neither focuses it nor changes its selection, so selecting lines to stage or patch can only be done with keys (e.g. `enter` on a file, or `0`, and then the arrow keys).\nClicking a file name in a diff's diffstat only scrolls to that file.\nMouse scrolling, alt- or shift-clicking a line to open it in your editor, and clicking the main view when it shows something other than a diff are unaffected.",
+          "default": false
+        },
         "skipAmendWarning": {
           "type": "boolean",
           "description": "If true, do not show a warning when amending a commit.",

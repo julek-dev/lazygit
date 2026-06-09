@@ -66,6 +66,9 @@ func (config *UserConfig) Validate() error {
 	if err := validateSpinner(config.Gui.Spinner); err != nil {
 		return err
 	}
+	if config.Git.DiffContextSizeStep == 0 {
+		return errors.New("git.diffContextSizeStep must be at least 1.")
+	}
 	if err := validateSidePanels(config.Gui.SidePanels); err != nil {
 		return err
 	}

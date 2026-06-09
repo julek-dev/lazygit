@@ -366,6 +366,32 @@ func TestUserConfigValidate_spinnerFrames(t *testing.T) {
 	}
 }
 
+func TestUserConfigValidate_diffContextSizeStep(t *testing.T) {
+	scenarios := []struct {
+		name  string
+		step  uint64
+		valid bool
+	}{
+		{name: "zero", step: 0, valid: false},
+		{name: "one", step: 1, valid: true},
+		{name: "more than one", step: 5, valid: true},
+	}
+
+	for _, s := range scenarios {
+		t.Run(s.name, func(t *testing.T) {
+			config := GetDefaultConfig()
+			config.Git.DiffContextSizeStep = s.step
+			err := config.Validate()
+
+			if s.valid {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+			}
+		})
+	}
+}
+
 func TestUserConfigValidate_sidePanels(t *testing.T) {
 	scenarios := []struct {
 		name   string

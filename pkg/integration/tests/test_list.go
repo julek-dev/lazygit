@@ -678,6 +678,7 @@ var tests = []*components.IntegrationTest{
 	ui.RangeSelectWithAutoscroll,
 	ui.ReloadSidePanels,
 	ui.ReorderSidePanels,
+	ui.RerenderDiffRendererWhenFocusingMainView,
 	ui.SubCommitsScrollPositionIsReset,
 	ui.SuggestionsSelectionFollowsTheFocus,
 	ui.SwitchRepoMovesTheSelection,

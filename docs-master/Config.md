@@ -439,6 +439,10 @@ git:
   # from within Lazygit with the `{` and `}` keys.
   diffContextSize: 3
 
+  # The number of lines by which the diff context size is changed when pressing
+  # the `{` and `}` keys.
+  diffContextSizeStep: 1
+
   # The threshold for considering a file to be renamed, in percent. Can be changed
   # from within Lazygit with the `(` and `)` keys.
   renameSimilarityThreshold: 50

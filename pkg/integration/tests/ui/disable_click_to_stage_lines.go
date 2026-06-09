@@ -17,7 +17,7 @@ var DisableClickToStageLines = NewIntegrationTest(NewIntegrationTestArgs{
 		shell.CreateFileAndAdd("file1", "one\ntwo\n")
 		shell.Commit("one")
 
-		shell.UpdateFile("file1", "one\ntwo\nthree\nfour\n")
+		shell.UpdateFile("file1", "one\ntwo\nthree\nfour\nfive\nsix\n")
 	},
 	Run: func(t *TestDriver, keys config.KeybindingConfig) {
 		// Layer A: clicking a line in the read-only diff must not enter the staging view.
@@ -49,6 +49,25 @@ var DisableClickToStageLines = NewIntegrationTest(NewIntegrationTestArgs{
 			// clicking '+four' would normally move the selection there; with the
 			// option set it's a no-op, so '+three' stays selected
 			Click(1, 8).
+			SelectedLines(Contains("+three")).
+			// stage two lines (the keyboard still works) so that the staged
+			// (secondary) view has content
+			PressPrimaryAction().
+			PressPrimaryAction().
+			SelectedLines(Contains("+five"))
+
+		// Layer C: clicking an unfocused staging view still focuses it, but doesn't
+		// jump the selection to the clicked line.
+		t.Views().StagingSecondary().
+			// click '+four'; the selection stays on '+three', the first changed line
+			Click(1, 8).
+			IsFocused().
 			SelectedLines(Contains("+three"))
+
+		t.Views().Staging().
+			// click '+six'; the selection stays on '+five', the first changed line
+			Click(1, 9).
+			IsFocused().
+			SelectedLines(Contains("+five"))
 	},
 })

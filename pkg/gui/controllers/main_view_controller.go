@@ -661,6 +661,15 @@ func (self *MainViewController) lineToFlash(clickedViewLine int) int {
 }
 
 func (self *MainViewController) onClickInOtherViewOfMainViewPair(opts gocui.ViewMouseBindingOpts) error {
+	if self.c.UserConfig().Gui.DisableClickToStageLines {
+		// Focus the pane as switching to it with the keyboard does.
+		self.c.Context().Push(self.context, types.OnFocusOpts{})
+		if self.isDiffView() {
+			self.c.Helpers().DiffLine.EstablishSelection(self.context, -1)
+		}
+		return nil
+	}
+
 	// Carry the select mode over from the pane we're leaving, so that clicking into
 	// the other pane keeps hunk mode even the first time we enter it — its own mode
 	// would otherwise still be the default single line until it had been focused at

@@ -63,11 +63,20 @@ func (self *SwitchToFocusedMainViewController) Context() types.Context {
 }
 
 func (self *SwitchToFocusedMainViewController) onClickMain(opts gocui.ViewMouseBindingOpts) error {
-	return self.focusMainView(self.c.Contexts().Normal, opts.Y)
+	return self.focusMainView(self.c.Contexts().Normal, self.clickedLineIdx(opts))
 }
 
 func (self *SwitchToFocusedMainViewController) onClickSecondary(opts gocui.ViewMouseBindingOpts) error {
-	return self.focusMainView(self.c.Contexts().NormalSecondary, opts.Y)
+	return self.focusMainView(self.c.Contexts().NormalSecondary, self.clickedLineIdx(opts))
+}
+
+// clickedLineIdx returns the line a click puts the selection on, or -1 to put it where
+// focusing with the keyboard would.
+func (self *SwitchToFocusedMainViewController) clickedLineIdx(opts gocui.ViewMouseBindingOpts) int {
+	if self.c.UserConfig().Gui.DisableClickToStageLines {
+		return -1
+	}
+	return opts.Y
 }
 
 func (self *SwitchToFocusedMainViewController) handleFocusMainView() error {

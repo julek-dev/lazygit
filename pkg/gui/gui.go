@@ -946,6 +946,12 @@ func viewsBelongToSamePopupPanel(viewName string, otherViewName string) bool {
 	})
 }
 
+func (gui *Gui) isFocusedMainViewPane(view *gocui.View) bool {
+	return view.Name() == gui.currentViewName() &&
+		(view.Name() == gui.Contexts().Normal.GetViewName() ||
+			view.Name() == gui.Contexts().NormalSecondary.GetViewName())
+}
+
 // Run: setup the gui with keybindings and start the mainloop
 func (gui *Gui) Run(startArgs appTypes.StartArgs) error {
 	g, err := gui.initGocui(Headless(), startArgs.IntegrationTest)
@@ -983,6 +989,13 @@ func (gui *Gui) Run(startArgs appTypes.StartArgs) error {
 			if !viewsBelongToSamePopupPanel(gui.currentViewName(), view.Name()) {
 				return false
 			}
+		}
+
+		if gui.c.UserConfig().Gui.DisableClickToStageLines && gui.isFocusedMainViewPane(view) &&
+			!gocui.IsMouseScrollKey(key) && key != gocui.MouseRelease {
+			// Such an event moves the view's cursor to where it lands, before any binding
+			// sees it, and the focused main view draws its diff selection at the cursor.
+			return false
 		}
 
 		return true

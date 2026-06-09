@@ -75,6 +75,13 @@ gui:
   # requiring you to hold the option key when on macOS.
   mouseEvents: true
 
+  # If true, clicking a line in a diff no longer starts staging or patching that
+  # line. Clicking the diff in the main view won't open the
+  # line-by-line staging view, and clicking inside the staging or custom patch
+  # building view won't change the line selection.
+  # Mouse scrolling and clicking to focus a view are unaffected.
+  disableClickToStageLines: false
+
   # If true, do not show a warning when amending a commit.
   skipAmendWarning: false
 

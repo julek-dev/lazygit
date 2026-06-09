@@ -473,6 +473,7 @@ var tests = []*components.IntegrationTest{
 	tag.Reset,
 	tag.ResetToDuplicateNamedBranch,
 	ui.Accordion,
+	ui.DisableClickToStageLines,
 	ui.DisableSwitchTabWithPanelJumpKeys,
 	ui.EmptyMenu,
 	ui.KeybindingSuggestionsDontCrashOnDisabledBindings,

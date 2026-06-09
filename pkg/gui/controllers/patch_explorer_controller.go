@@ -137,14 +137,26 @@ func (self *PatchExplorerController) GetMouseKeybindings(opts types.KeybindingsO
 			ViewName: self.context.GetViewName(),
 			Key:      gocui.MouseLeft,
 			Handler: func(opts gocui.ViewMouseBindingOpts) error {
+				clickToStageDisabled := self.c.UserConfig().Gui.DisableClickToStageLines
+
 				if self.isFocused() {
+					// gocui moves the view's cursor to the clicked line before this
+					// handler runs, so when click-to-stage is disabled we re-render
+					// from the unchanged state to snap the selection back rather than
+					// starting a patch range at the click.
+					if clickToStageDisabled {
+						return self.withRenderAndFocus(noopHandler)()
+					}
 					return self.withRenderAndFocus(self.HandleMouseDown)()
 				}
 
-				self.c.Context().Push(self.context, types.OnFocusOpts{
-					ClickedWindowName:  self.context.GetWindowName(),
-					ClickedViewLineIdx: opts.Y,
-				})
+				// Clicking still focuses the view, but when click-to-stage is
+				// disabled we don't jump the selection to the clicked line.
+				focusOpts := types.OnFocusOpts{ClickedWindowName: self.context.GetWindowName()}
+				if !clickToStageDisabled {
+					focusOpts.ClickedViewLineIdx = opts.Y
+				}
+				self.c.Context().Push(self.context, focusOpts)
 
 				return nil
 			},
@@ -154,6 +166,9 @@ func (self *PatchExplorerController) GetMouseKeybindings(opts types.KeybindingsO
 			Key:      gocui.MouseLeft,
 			Modifier: gocui.ModMotion,
 			Handler: func(gocui.ViewMouseBindingOpts) error {
+				if self.c.UserConfig().Gui.DisableClickToStageLines {
+					return self.withRenderAndFocus(noopHandler)()
+				}
 				return self.withRenderAndFocus(self.HandleMouseDrag)()
 			},
 		},
@@ -257,6 +272,13 @@ func (self *PatchExplorerController) HandleGotoTop() error {
 func (self *PatchExplorerController) HandleGotoBottom() error {
 	self.context.GetState().SelectBottom()
 
+	return nil
+}
+
+// noopHandler is used as the "action" when click-to-stage is disabled: it makes
+// no state change but still goes through withRenderAndFocus, which re-syncs the
+// view's selection with the (unchanged) state.
+func noopHandler() error {
 	return nil
 }
 

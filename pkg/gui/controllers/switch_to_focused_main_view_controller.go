@@ -77,5 +77,13 @@ func (self *SwitchToFocusedMainViewController) focusMainView(mainViewContext typ
 		context.ClearSearchString()
 	}
 	self.c.Context().Push(mainViewContext, types.OnFocusOpts{})
+
+	// In half and full screen mode, focusing the main view widens it, because the
+	// side panels are no longer shown. Re-render the main view so that a custom
+	// pager whose output depends on the width (e.g. a side-by-side diff) reflows
+	// to the new width, rather than keeping the content it rendered while narrow.
+	if self.c.State().GetRepoState().GetScreenMode() != types.SCREEN_NORMAL {
+		self.c.Context().CurrentSide().HandleRenderToMain()
+	}
 	return nil
 }

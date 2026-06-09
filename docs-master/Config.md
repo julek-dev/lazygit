@@ -451,6 +451,10 @@ git:
   # the `{` and `}` keys.
   diffContextSizeStep: 1
 
+  # The minimum number of lines of context that the diff context size can be
+  # decreased to with the `{` key.
+  diffContextSizeMin: 3
+
   # The threshold for considering a file to be renamed, in percent. Can be changed
   # from within Lazygit with the `(` and `)` keys.
   renameSimilarityThreshold: 50

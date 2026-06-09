@@ -313,6 +313,8 @@ type GitConfig struct {
 	DiffContextSize uint64 `yaml:"diffContextSize"`
 	// The number of lines by which the diff context size is changed when pressing the `{` and `}` keys.
 	DiffContextSizeStep uint64 `yaml:"diffContextSizeStep" jsonschema:"minimum=1"`
+	// The minimum number of lines of context that the diff context size can be decreased to with the `{` key.
+	DiffContextSizeMin uint64 `yaml:"diffContextSizeMin"`
 	// The threshold for considering a file to be renamed, in percent. Can be changed from within Lazygit with the `(` and `)` keys.
 	RenameSimilarityThreshold int `yaml:"renameSimilarityThreshold" jsonschema:"minimum=0,maximum=100"`
 	// If true, do not spawn a separate process when using GPG
@@ -932,6 +934,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 			IgnoreWhitespaceInDiffView:   false,
 			DiffContextSize:              3,
 			DiffContextSizeStep:          1,
+			DiffContextSizeMin:           3,
 			RenameSimilarityThreshold:    50,
 			DisableForcePushing:          false,
 			CommitPrefixes:               map[string][]CommitPrefixConfig(nil),

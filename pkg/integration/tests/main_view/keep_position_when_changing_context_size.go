@@ -16,6 +16,8 @@ var KeepPositionWhenChangingContextSize = NewIntegrationTest(NewIntegrationTestA
 	Height:       30,
 	SetupConfig: func(cfg *config.AppConfig) {
 		cfg.GetUserConfig().Gui.UseHunkModeInDiffView = false
+		// This test decreases the context below the default minimum, so lift it.
+		cfg.GetUserConfig().Git.DiffContextSizeMin = 0
 	},
 	SetupRepo: func(shell *Shell) {
 		lines := make([]string, 40)

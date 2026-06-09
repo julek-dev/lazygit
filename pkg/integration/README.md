@@ -54,6 +54,14 @@ You can pass the INPUT_DELAY env var to the test runner in order to set a delay 
 
 The resultant repo will be stored in `test/_results`, so if you're not sure what went wrong you can go there and inspect the repo.
 
+### Running tests out of tree
+
+By default the test runner locates the lazygit source tree by walking up from the current directory until it finds a `.git` directory, so it has to be run from within a git working tree. To run the tests against a source copy that has no `.git` directory of its own (for example a release tarball or a vendored copy), set the `LAZYGIT_ROOT_DIR` environment variable to that copy's root directory and the runner will use it instead:
+
+```sh
+LAZYGIT_ROOT_DIR=/path/to/lazygit go test pkg/integration/clients/*.go
+```
+
 ### Running tests in VSCode
 
 If you've opened an integration test file in your editor you can run that file by bringing up the command panel with `cmd+shift+p` and typing 'run task', then selecting the test task you want to run

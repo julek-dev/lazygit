@@ -46,7 +46,17 @@ var hostEnvironmentAllowlist = [...]string{
 // integration test sources (pkg/integration/tests) and the test fixtures under
 // test/. The integration test runner needs it both to build lazygit and to
 // locate those fixtures.
+//
+// By default we find it by walking up from the current directory to the first
+// ancestor containing a .git directory, which requires running inside
+// lazygit's own git working tree. Setting LAZYGIT_ROOT_DIR overrides that,
+// which lets the integration tests run out of tree, e.g. against a source
+// copy that has no .git directory of its own.
 func GetRootDirectory() string {
+	if rootDir := os.Getenv(LAZYGIT_ROOT_DIR); rootDir != "" {
+		return rootDir
+	}
+
 	return lazycoreUtils.GetLazyRootDirectory()
 }
 

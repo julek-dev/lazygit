@@ -110,7 +110,13 @@ func focusMainViewPane(c *ControllerCommon, source types.Context, mainViewContex
 	// is. Now that the user wants to act on it, it is re-rendered as git's own diff — the
 	// panel below decides that for itself, from the same question — and the selection
 	// goes on that instead of on rows we can't place.
-	if c.Helpers().DiffLine.MainViewDiffMode() == git_commands.DiffModeRaw {
+	//
+	// In half and full screen mode, focusing the main view also widens it, because the
+	// side panels are no longer shown. It is rendered again then too, so that a renderer
+	// whose output depends on the width (e.g. a side-by-side diff) reflows to the new
+	// width, rather than keeping the content it rendered while narrow.
+	if c.Helpers().DiffLine.MainViewDiffMode() == git_commands.DiffModeRaw ||
+		c.State().GetRepoState().GetScreenMode() != types.SCREEN_NORMAL {
 		c.Helpers().DiffLine.RenderFocusedMainViewAgain(mainViewContext.GetView(), source, func() {
 			c.Helpers().DiffLine.EstablishSelection(mainViewContext, clickedLineIdx)
 		})

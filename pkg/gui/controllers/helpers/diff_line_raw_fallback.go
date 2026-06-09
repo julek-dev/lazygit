@@ -50,17 +50,17 @@ func (self *DiffLineHelper) DiffRowsCanBePlaced() bool {
 
 // RenderFocusedMainViewAgain has the panel beneath the focused main view render its
 // diff again — which, the main view now holding focus, is git's own diff rather than
-// the renderer's — and calls place once that is on screen.
+// the renderer's where the renderer's can't be acted on (see MainViewDiffMode) — and
+// calls place once that is on screen.
 //
 // The whole diff is read before it is shown, rather than the first screenful: place
 // looks at what is there to decide where to put the selection, and a change line
 // further down would otherwise be missed.
 //
 // It is the same diff of the same files, so the view keeps the scroll position it has
-// rather than starting from the top: git lays the changes out its own way and the line
-// the user was on is somewhere else now, but the offset still puts them among the same
-// part of the file — and the selection is then established from what that leaves on
-// screen.
+// rather than starting from the top: laid out anew, the line the user was on may be
+// somewhere else now, but the offset still puts them among the same part of the file —
+// and the selection is then established from what that leaves on screen.
 func (self *DiffLineHelper) RenderFocusedMainViewAgain(view *gocui.View, sidePanel types.Context, place func()) {
 	manager := self.c.GetOrCreateViewBufferManagerForView(view)
 	if manager == nil {

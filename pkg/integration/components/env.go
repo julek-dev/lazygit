@@ -3,6 +3,8 @@ package components
 import (
 	"fmt"
 	"os"
+
+	lazycoreUtils "github.com/jesseduffield/lazycore/pkg/utils"
 )
 
 const (
@@ -38,6 +40,14 @@ const (
 var hostEnvironmentAllowlist = [...]string{
 	PATH,
 	TERM,
+}
+
+// GetRootDirectory returns lazygit's root directory: the one containing the
+// integration test sources (pkg/integration/tests) and the test fixtures under
+// test/. The integration test runner needs it both to build lazygit and to
+// locate those fixtures.
+func GetRootDirectory() string {
+	return lazycoreUtils.GetLazyRootDirectory()
 }
 
 // Returns a copy of the environment filtered by

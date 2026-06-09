@@ -23,7 +23,7 @@ import (
 var SLOW_INPUT_DELAY = 600
 
 func RunTUI(raceDetector bool) {
-	rootDir := utils.GetLazyRootDirectory()
+	rootDir := components.GetRootDirectory()
 	testDir := filepath.Join(rootDir, "test", "integration")
 
 	app := newApp(testDir)
@@ -206,7 +206,7 @@ type app struct {
 }
 
 func newApp(testDir string) *app {
-	return &app{testDir: testDir, allTests: tests.GetTests(utils.GetLazyRootDirectory())}
+	return &app{testDir: testDir, allTests: tests.GetTests(components.GetRootDirectory())}
 }
 
 func (self *app) getCurrentTest() *components.IntegrationTest {

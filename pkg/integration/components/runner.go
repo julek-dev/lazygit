@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	lazycoreUtils "github.com/jesseduffield/lazycore/pkg/utils"
 	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
 	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
 	"github.com/jesseduffield/lazygit/pkg/utils"
@@ -31,7 +30,7 @@ type RunTestArgs struct {
 // showing what's actually happening during the test, but it's still good at running
 // tests in telling you about their results.
 func RunTests(args RunTestArgs) error {
-	projectRootDir := lazycoreUtils.GetLazyRootDirectory()
+	projectRootDir := GetRootDirectory()
 	err := os.Chdir(projectRootDir)
 	if err != nil {
 		return err

@@ -14,7 +14,6 @@ import (
 	"testing"
 
 	"github.com/creack/pty"
-	"github.com/jesseduffield/lazycore/pkg/utils"
 	"github.com/jesseduffield/lazygit/pkg/integration/components"
 	"github.com/jesseduffield/lazygit/pkg/integration/tests"
 	"github.com/stretchr/testify/assert"
@@ -35,7 +34,7 @@ func TestIntegration(t *testing.T) {
 	testNumber := 0
 
 	err := components.RunTests(components.RunTestArgs{
-		Tests:  tests.GetTests(utils.GetLazyRootDirectory()),
+		Tests:  tests.GetTests(components.GetRootDirectory()),
 		Logf:   t.Logf,
 		RunCmd: runCmdHeadless,
 		TestWrapper: func(test *components.IntegrationTest, f func() error) {

@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jesseduffield/lazycore/pkg/utils"
 	"github.com/jesseduffield/lazygit/pkg/integration/components"
 	"github.com/jesseduffield/lazygit/pkg/integration/tests"
 	"github.com/samber/lo"
@@ -54,7 +53,7 @@ func runAndPrintFatalError(test *components.IntegrationTest, f func() error) {
 }
 
 func getTestsToRun(testNames []string) []*components.IntegrationTest {
-	allIntegrationTests := tests.GetTests(utils.GetLazyRootDirectory())
+	allIntegrationTests := tests.GetTests(components.GetRootDirectory())
 	var testsToRun []*components.IntegrationTest
 
 	if len(testNames) == 0 {

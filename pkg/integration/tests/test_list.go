@@ -387,6 +387,7 @@ var tests = []*components.IntegrationTest{
 	shell_commands.OmitFromHistory,
 	staging.DiffChangeScreenMode,
 	staging.DiffContextChange,
+	staging.DiffContextSizeStep,
 	staging.DiscardAllChanges,
 	staging.Search,
 	staging.SelectNextLineAfterStagingInTwoHunkDiff,

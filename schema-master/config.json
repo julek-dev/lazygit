@@ -403,6 +403,12 @@
           "description": "The number of lines of context to show around each diff hunk. Can be changed from within Lazygit with the `{` and `}` keys.",
           "default": 3
         },
+        "diffContextSizeStep": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The number of lines by which the diff context size is changed when pressing the `{` and `}` keys.",
+          "default": 1
+        },
         "renameSimilarityThreshold": {
           "type": "integer",
           "maximum": 100,

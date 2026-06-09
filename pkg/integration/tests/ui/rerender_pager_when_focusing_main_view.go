@@ -46,9 +46,6 @@ var RerenderPagerWhenFocusingMainView = NewIntegrationTest(NewIntegrationTestArg
 
 		t.Views().Main().
 			IsFocused().
-			/* EXPECTED:
 			Content(Contains("COLUMNWIDTH=68"))
-			ACTUAL: */
-			Content(Contains("COLUMNWIDTH=30"))
 	},
 })

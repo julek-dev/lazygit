@@ -59,11 +59,10 @@ func (self *ContextLinesController) Increase() error {
 }
 
 func (self *ContextLinesController) Decrease() error {
-	step := self.c.UserConfig().Git.DiffContextSizeStep
-	if self.c.UserConfig().Git.DiffContextSize >= step {
-		self.c.UserConfig().Git.DiffContextSize -= step
-	} else {
-		self.c.UserConfig().Git.DiffContextSize = 0
+	gitConfig := &self.c.UserConfig().Git
+	// Stop at the minimum, and leave a size the config puts below it alone.
+	if gitConfig.DiffContextSize > gitConfig.DiffContextSizeMin {
+		gitConfig.DiffContextSize -= min(gitConfig.DiffContextSizeStep, gitConfig.DiffContextSize-gitConfig.DiffContextSizeMin)
 	}
 	return self.applyChange()
 }

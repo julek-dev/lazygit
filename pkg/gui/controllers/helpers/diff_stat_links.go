@@ -274,6 +274,11 @@ func (self *DiffLineHelper) jumpToFileNamedInDiffStat(pane types.DiffPaneContext
 	}
 
 	if target, ok := self.StartOfFileInDiff(view, files[index]); ok {
+		if self.c.UserConfig().Gui.DisableClickToStageLines {
+			// The link is followed by a click, which isn't to change the selection.
+			self.ScrollNavigationTargetToTop(pane, target)
+			return
+		}
 		self.PlaceNavigationTarget(pane, target, true)
 	}
 }

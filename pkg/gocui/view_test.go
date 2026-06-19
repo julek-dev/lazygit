@@ -258,6 +258,25 @@ func cellsToString(cells []cell) string {
 	return s.String()
 }
 
+func TestViewLinesHaveColoredBackground(t *testing.T) {
+	// OutputTrue matches the output mode lazygit runs its views in.
+	v := NewView("name", 0, 0, 40, 10, OutputTrue)
+	v.Frame = false
+	v.Wrap = false
+
+	// Use real ANSI escape sequences so we exercise the same parsing path that a
+	// diff pager's output goes through. A foreground-only color (as used for a
+	// syntax-highlighted context line) is not a change; a background color (as
+	// delta uses for additions/deletions, e.g. "48;5;22") is.
+	v.WriteString("\x1b[38;5;231mcontext line\x1b[0m\n")
+	v.WriteString("\x1b[48;5;22mchanged line\x1b[0m\n")
+	v.WriteString("plain line\n")
+
+	result := v.ViewLinesHaveColoredBackground()
+
+	assert.Equal(t, []bool{false, true, false}, result[:3])
+}
+
 func cellsToStrings(cells []cell) []string {
 	s := []string{}
 	for _, c := range cells {

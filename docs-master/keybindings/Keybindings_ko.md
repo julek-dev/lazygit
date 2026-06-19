@@ -48,6 +48,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` / `` | 검색 시작 |  |
 | `` H `` | 우 스크롤 |  |
 | `` L `` | 좌 스크롤 |  |
+| `` n `` | Go to next change |  |
+| `` N `` | Go to previous change |  |
 | `` ] `` | 이전 탭 |  |
 | `` [ `` | 다음 탭 |  |
 

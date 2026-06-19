@@ -48,6 +48,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` / `` | Найти |  |
 | `` H `` | Прокрутить влево |  |
 | `` L `` | Прокрутить вправо |  |
+| `` n `` | Go to next change |  |
+| `` N `` | Go to previous change |  |
 | `` ] `` | Следующая вкладка |  |
 | `` [ `` | Предыдущая вкладка |  |
 

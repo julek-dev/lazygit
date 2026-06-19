@@ -48,6 +48,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` / `` | Pesquisar na visualização atual por texto |  |
 | `` H `` | Rolar à esquerda |  |
 | `` L `` | Scroll para a direita |  |
+| `` n `` | Go to next change |  |
+| `` N `` | Go to previous change |  |
 | `` ] `` | Próxima aba |  |
 | `` [ `` | Aba anterior |  |
 

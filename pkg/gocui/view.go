@@ -1475,6 +1475,29 @@ func (v *View) ViewBufferLines() []string {
 	return lines
 }
 
+// ViewLinesHaveColoredBackground returns, for each wrapped view line, whether it
+// has at least one cell with a non-default background color. Some diff pagers
+// (e.g. delta) convey added/removed lines through background color rather than
+// leading +/- markers, so this lets callers locate changed lines that carry no
+// textual diff markers.
+func (v *View) ViewLinesHaveColoredBackground() []bool {
+	v.writeMutex.Lock()
+	defer v.writeMutex.Unlock()
+
+	v.refreshViewLinesIfNeeded()
+
+	result := make([]bool, len(v.viewLines))
+	for i, l := range v.viewLines {
+		for _, c := range l.line {
+			if c.bgColor.IsValidColor() {
+				result[i] = true
+				break
+			}
+		}
+	}
+	return result
+}
+
 // LinesHeight is the count of view lines (i.e. lines excluding wrapping)
 func (v *View) LinesHeight() int {
 	return len(v.lines)

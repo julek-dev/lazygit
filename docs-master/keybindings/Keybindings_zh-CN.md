@@ -48,6 +48,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` / `` | 开始搜索 |  |
 | `` H `` | 向左滚动 |  |
 | `` L `` | 向右滚动 |  |
+| `` n `` | Go to next change |  |
+| `` N `` | Go to previous change |  |
 | `` ] `` | 下一个标签 |  |
 | `` [ `` | 上一个标签 |  |
 

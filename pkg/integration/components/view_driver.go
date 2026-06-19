@@ -94,6 +94,19 @@ func (self *ViewDriver) VisibleLines(matchers ...*TextMatcher) *ViewDriver {
 	return self.assertLines(originY, matchers...)
 }
 
+// Like TopLines, but relative to the top of the viewport (i.e. respecting how
+// far the view is scrolled down) rather than the top of the buffer. Unlike
+// VisibleLines it doesn't require the viewport to be completely filled, so it's
+// handy for asserting on the scroll position of a partially-filled view.
+func (self *ViewDriver) VisibleLinesFromTop(matchers ...*TextMatcher) *ViewDriver {
+	self.validateMatchersPassed(matchers)
+	self.validateEnoughLines(matchers)
+
+	originY := self.getView().OriginY()
+
+	return self.assertLines(originY, matchers...)
+}
+
 // asserts that somewhere in the view there are consecutive lines matching the given matchers.
 func (self *ViewDriver) ContainsLines(matchers ...*TextMatcher) *ViewDriver {
 	self.validateMatchersPassed(matchers)

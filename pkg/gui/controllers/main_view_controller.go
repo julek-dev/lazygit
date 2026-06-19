@@ -147,13 +147,23 @@ func (self *MainViewController) handlePreviousChange() error {
 }
 
 // Scrolls the diff in the main view so that the next (or previous) changed
-// region is at the top of the viewport. A changed region begins at each hunk
-// header, so we navigate between those.
+// region is at the top of the viewport.
 func (self *MainViewController) scrollToChange(forward bool) error {
 	view := self.context.GetView()
 	lines := view.ViewBufferLines()
+	coloredBackground := view.ViewLinesHaveColoredBackground()
+	if len(coloredBackground) != len(lines) {
+		return nil
+	}
 
-	idx, found := adjacentHunkHeaderIdx(lines, view.OriginY(), forward)
+	// A line is part of a change either because it carries a +/- diff marker
+	// (the default, non-pager diff) or because a pager such as delta rendered it
+	// with a colored background instead of a marker.
+	isChange := func(i int) bool {
+		return coloredBackground[i] || isDiffChangeMarker(lines[i])
+	}
+
+	idx, found := nextChangeRegionIdx(len(lines), view.OriginY(), forward, isChange)
 	if !found {
 		return nil
 	}
@@ -167,18 +177,24 @@ func (self *MainViewController) scrollToChange(forward bool) error {
 	return nil
 }
 
-// Returns the index of the closest hunk header before or after fromIdx
-// (exclusive), depending on the direction, and whether one was found.
-func adjacentHunkHeaderIdx(lines []string, fromIdx int, forward bool) (int, bool) {
+// nextChangeRegionIdx returns the index of the line that starts the next (or
+// previous) region of changed lines relative to fromIdx (exclusive), and
+// whether one was found. Consecutive changed lines form a single region, so a
+// region starts at a changed line whose predecessor is not a change.
+func nextChangeRegionIdx(numLines int, fromIdx int, forward bool, isChange func(int) bool) (int, bool) {
+	isRegionStart := func(i int) bool {
+		return isChange(i) && (i == 0 || !isChange(i-1))
+	}
+
 	if forward {
-		for i := fromIdx + 1; i < len(lines); i++ {
-			if isHunkHeader(lines[i]) {
+		for i := fromIdx + 1; i < numLines; i++ {
+			if isRegionStart(i) {
 				return i, true
 			}
 		}
 	} else {
-		for i := min(fromIdx, len(lines)) - 1; i >= 0; i-- {
-			if isHunkHeader(lines[i]) {
+		for i := min(fromIdx, numLines) - 1; i >= 0; i-- {
+			if isRegionStart(i) {
 				return i, true
 			}
 		}
@@ -187,6 +203,13 @@ func adjacentHunkHeaderIdx(lines []string, fromIdx int, forward bool) (int, bool
 	return 0, false
 }
 
-func isHunkHeader(line string) bool {
-	return strings.HasPrefix(line, "@@")
+// isDiffChangeMarker reports whether a rendered diff line is an added or removed
+// line, identified by its leading +/- marker. The +++/--- file-header lines are
+// not changes.
+func isDiffChangeMarker(line string) bool {
+	if strings.HasPrefix(line, "+++") || strings.HasPrefix(line, "---") {
+		return false
+	}
+
+	return strings.HasPrefix(line, "+") || strings.HasPrefix(line, "-")
 }

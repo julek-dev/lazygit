@@ -5,15 +5,24 @@ import (
 	. "github.com/jesseduffield/lazygit/pkg/integration/components"
 )
 
-var NavigateToChangeInMainView = NewIntegrationTest(NewIntegrationTestArgs{
-	Description:  "In a read-only diff view, n/N jump to the next/previous change when not searching",
+var NavigateToChangeInMainViewWithPager = NewIntegrationTest(NewIntegrationTestArgs{
+	Description:  "n/N jump between changes when the diff is rendered by a pager (like delta) that conveys changes through background color rather than +/- markers",
 	ExtraCmdArgs: []string{},
 	Skip:         false,
-	SetupConfig:  func(config *config.AppConfig) {},
+	SetupConfig: func(cfg *config.AppConfig) {
+		// Stand in for a pager like delta: drop the +/- markers and instead mark
+		// changed lines with a background color, so the only way to find changes
+		// is by that color.
+		cfg.GetUserConfig().Git.Pagers = []config.PagingConfig{
+			{
+				ColorArg: "never",
+				Pager:    `awk '/^\+\+\+/{print;next} /^---/{print;next} /^\+/{printf "\033[48;5;22m%s\033[0m\n",substr($0,2);next} /^-/{printf "\033[48;5;52m%s\033[0m\n",substr($0,2);next} {print}'`,
+			},
+		}
+	},
 	SetupRepo: func(shell *Shell) {
 		shell.CreateFileAndAdd("file1", "line 1\nline 2\nline 3\nline 4\nline 5\nline 6\nline 7\nline 8\nline 9\nline 10\nline 11\nline 12\nline 13\nline 14\nline 15\nline 16\nline 17\nline 18\nline 19\nline 20\n")
 		shell.Commit("initial")
-		// Change the first and last lines, producing a diff with two separate hunks.
 		shell.UpdateFile("file1", "CHANGED FIRST\nline 2\nline 3\nline 4\nline 5\nline 6\nline 7\nline 8\nline 9\nline 10\nline 11\nline 12\nline 13\nline 14\nline 15\nline 16\nline 17\nline 18\nline 19\nCHANGED LAST\n")
 	},
 	Run: func(t *TestDriver, keys config.KeybindingConfig) {
@@ -22,49 +31,28 @@ var NavigateToChangeInMainView = NewIntegrationTest(NewIntegrationTestArgs{
 			SelectedLine(Contains("file1")).
 			Press(keys.Universal.FocusMainView)
 
-		// The diff starts scrolled to the top, above the first change.
+		// The pager stripped the +/- markers, so the changed lines ("line 1" and
+		// "CHANGED FIRST") are only distinguishable by their background color.
 		t.Views().Main().
 			IsFocused().
-			VisibleLinesFromTop(Contains("diff --git a/file1 b/file1"))
+			Press(keys.Universal.NextMatch).
+			VisibleLinesFromTop(
+				Contains("line 1"),
+				Contains("CHANGED FIRST"),
+			)
 
-		// Jump to the first change.
 		t.Views().Main().
 			Press(keys.Universal.NextMatch).
 			VisibleLinesFromTop(
-				Contains("-line 1"),
-				Contains("+CHANGED FIRST"),
+				Contains("line 20"),
+				Contains("CHANGED LAST"),
 			)
 
-		// Jump to the second change.
-		t.Views().Main().
-			Press(keys.Universal.NextMatch).
-			VisibleLinesFromTop(
-				Contains("-line 20"),
-				Contains("+CHANGED LAST"),
-			)
-
-		// There is no further change, so we stay put.
-		t.Views().Main().
-			Press(keys.Universal.NextMatch).
-			VisibleLinesFromTop(
-				Contains("-line 20"),
-				Contains("+CHANGED LAST"),
-			)
-
-		// Jump back to the first change.
 		t.Views().Main().
 			Press(keys.Universal.PrevMatch).
 			VisibleLinesFromTop(
-				Contains("-line 1"),
-				Contains("+CHANGED FIRST"),
-			)
-
-		// There is no previous change, so we stay put.
-		t.Views().Main().
-			Press(keys.Universal.PrevMatch).
-			VisibleLinesFromTop(
-				Contains("-line 1"),
-				Contains("+CHANGED FIRST"),
+				Contains("line 1"),
+				Contains("CHANGED FIRST"),
 			)
 	},
 })

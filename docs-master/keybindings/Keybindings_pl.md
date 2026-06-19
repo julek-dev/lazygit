@@ -47,6 +47,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` / `` | Szukaj w bieżącym widoku po tekście |  |
 | `` H `` | Przewiń w lewo |  |
 | `` L `` | Przewiń w prawo |  |
+| `` n `` | Go to next change |  |
+| `` N `` | Go to previous change |  |
 | `` ] `` | Następna zakładka |  |
 | `` [ `` | Poprzednia zakładka |  |
 

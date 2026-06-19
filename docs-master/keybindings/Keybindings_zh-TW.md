@@ -47,6 +47,8 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` / `` | 搜尋 |  |
 | `` H `` | 向左捲動 |  |
 | `` L `` | 向右捲動 |  |
+| `` n `` | Go to next change |  |
+| `` N `` | Go to previous change |  |
 | `` ] `` | 下一個索引標籤 |  |
 | `` [ `` | 上一個索引標籤 |  |
 

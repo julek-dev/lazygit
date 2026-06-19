@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"strings"
+
 	"github.com/jesseduffield/lazygit/pkg/gocui"
 	"github.com/jesseduffield/lazygit/pkg/gui/context"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
@@ -49,6 +51,21 @@ func (self *MainViewController) GetKeybindings(opts types.KeybindingsOpts) []*ty
 			Keys:        opts.GetKeys(opts.Config.Universal.StartSearch),
 			Handler:     self.openSearch,
 			Description: self.c.Tr.StartSearch,
+			Tag:         "navigation",
+		},
+		{
+			// These are the same keys we use for jumping to the next/previous
+			// search match. While searching, gocui intercepts them for that
+			// purpose, so this handler only ever runs when we're not searching.
+			Keys:        opts.GetKeys(opts.Config.Universal.NextMatch),
+			Handler:     self.handleNextChange,
+			Description: self.c.Tr.NextChange,
+			Tag:         "navigation",
+		},
+		{
+			Keys:        opts.GetKeys(opts.Config.Universal.PrevMatch),
+			Handler:     self.handlePreviousChange,
+			Description: self.c.Tr.PrevChange,
 			Tag:         "navigation",
 		},
 	}
@@ -119,4 +136,57 @@ func (self *MainViewController) openSearch() error {
 	}
 
 	return nil
+}
+
+func (self *MainViewController) handleNextChange() error {
+	return self.scrollToChange(true)
+}
+
+func (self *MainViewController) handlePreviousChange() error {
+	return self.scrollToChange(false)
+}
+
+// Scrolls the diff in the main view so that the next (or previous) changed
+// region is at the top of the viewport. A changed region begins at each hunk
+// header, so we navigate between those.
+func (self *MainViewController) scrollToChange(forward bool) error {
+	view := self.context.GetView()
+	lines := view.ViewBufferLines()
+
+	idx, found := adjacentHunkHeaderIdx(lines, view.OriginY(), forward)
+	if !found {
+		return nil
+	}
+
+	if !view.CanScrollPastBottom {
+		maxOriginY := max(len(lines)-view.InnerHeight(), 0)
+		idx = min(idx, maxOriginY)
+	}
+	view.SetOriginY(idx)
+
+	return nil
+}
+
+// Returns the index of the closest hunk header before or after fromIdx
+// (exclusive), depending on the direction, and whether one was found.
+func adjacentHunkHeaderIdx(lines []string, fromIdx int, forward bool) (int, bool) {
+	if forward {
+		for i := fromIdx + 1; i < len(lines); i++ {
+			if isHunkHeader(lines[i]) {
+				return i, true
+			}
+		}
+	} else {
+		for i := min(fromIdx, len(lines)) - 1; i >= 0; i-- {
+			if isHunkHeader(lines[i]) {
+				return i, true
+			}
+		}
+	}
+
+	return 0, false
+}
+
+func isHunkHeader(line string) bool {
+	return strings.HasPrefix(line, "@@")
 }

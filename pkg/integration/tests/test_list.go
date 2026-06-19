@@ -470,6 +470,7 @@ var tests = []*components.IntegrationTest{
 	ui.KeybindingSuggestionsDontCrashOnDisabledBindings,
 	ui.KeybindingSuggestionsWhenSwitchingRepos,
 	ui.ModeSpecificKeybindingSuggestions,
+	ui.NavigateToChangeInMainView,
 	ui.OpenLinkFailure,
 	ui.RangeSelect,
 	ui.RerenderPagerWhenFocusingMainView,

@@ -156,6 +156,27 @@ func (self *GuiDriver) FocusInAndClick(x, y int) {
 	self.waitTillIdle()
 }
 
+// ResizeTerminal resizes the terminal lazygit runs in, as a user resizing their
+// terminal window (or zooming a tmux pane) does.
+func (self *GuiDriver) ResizeTerminal(width, height int) {
+	self.replayResizeEventWithoutWaiting(width, height)
+	self.waitTillIdle()
+}
+
+func (self *GuiDriver) PressKeyAndResizeTerminal(keyStr string, width, height int) {
+	self.CheckAllToastsAcknowledged()
+
+	self.replayKeyEventWithoutWaiting(keyStr)
+	self.replayResizeEventWithoutWaiting(width, height)
+	self.waitTillIdle()
+}
+
+func (self *GuiDriver) replayResizeEventWithoutWaiting(width, height int) {
+	if err := self.gui.g.ReplayResizeEvent(width, height); err != nil {
+		self.Fail(err.Error())
+	}
+}
+
 // RefreshInBackground performs the refresh that the background routines perform
 // on a timer (see BackgroundRoutineMgr). Tests drive it directly rather than
 // turning those routines on, so that they neither wait for a timer nor depend on

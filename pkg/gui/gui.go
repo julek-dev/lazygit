@@ -94,7 +94,17 @@ type Gui struct {
 	// from within a pty. The point of keeping track of them is so that if we re-size
 	// the window, we can tell the pty it needs to resize accordingly.
 	viewPtmxMap map[string]oscommands.Pty
-	stopChan    chan struct{}
+	// holds a mapping of view names to how wide the view was when the render that
+	// produced its content was laid out, so that the content can be rendered again
+	// when the view's width changes. A view has no entry while its content doesn't
+	// depend on the view's width. Only accessed on the UI thread.
+	renderedViewWidths map[string]int
+	// The widths of the main window's panes that a render at a new width is waiting
+	// for them to settle at, and the generation of that wait, which a later one
+	// supersedes (see scheduleRenderAtNewWidth). Only accessed on the UI thread.
+	scheduledRenderWidths      [2]int
+	renderAtNewWidthGeneration int
+	stopChan                   chan struct{}
 
 	// when lazygit is opened outside a git directory we want to open to the most
 	// recent repo with the recent repos popup showing
@@ -801,6 +811,7 @@ func NewGui(
 		viewBufferManagerMap:  map[string]*tasks.ViewBufferManager{},
 		diffStatLinkWriterMap: map[string]*helpers.DiffStatLinkWriter{},
 		viewPtmxMap:           map[string]oscommands.Pty{},
+		renderedViewWidths:    map[string]int{},
 		showRecentRepos:       showRecentRepos,
 		RepoPathStack:         &utils.Stack[types.RepoLocation]{},
 		RepoStateMap:          map[Repo]*GuiRepoState{},

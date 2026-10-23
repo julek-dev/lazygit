@@ -684,6 +684,7 @@ var tests = []*components.IntegrationTest{
 	ui.RerenderDiffRendererAfterResizingBehindAPopup,
 	ui.RerenderDiffRendererWhenFocusingMainView,
 	ui.RerenderDiffRendererWhenResizingTerminal,
+	ui.ResizeTerminalWhileStagingALine,
 	ui.SubCommitsScrollPositionIsReset,
 	ui.SuggestionsSelectionFollowsTheFocus,
 	ui.SwitchRepoMovesTheSelection,

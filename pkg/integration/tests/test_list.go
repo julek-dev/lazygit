@@ -574,6 +574,7 @@ var tests = []*components.IntegrationTest{
 	status.ClickRepoNameToOpenReposMenu,
 	status.ClickToFocus,
 	status.ClickWorkingTreeStateToOpenRebaseOptionsMenu,
+	status.KeepShowingTheBranchLogWhenRenderedAgain,
 	status.LogCmd,
 	status.LogCmdStatusPanelAllBranchesLog,
 	submodule.Add,

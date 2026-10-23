@@ -16,6 +16,11 @@ import (
 type StatusController struct {
 	baseController
 	c *ControllerCommon
+
+	// Whether the main view shows the branch log that the log key brought up,
+	// rather than the panel's default view. Rendering the panel to the main view
+	// again keeps showing it; focusing another side panel ends it.
+	showingBranchLog bool
 }
 
 var _ types.IController = &StatusController{}
@@ -77,6 +82,11 @@ func (self *StatusController) GetMouseKeybindings(opts types.KeybindingsOpts) []
 
 func (self *StatusController) GetOnRenderToMain() func() {
 	return func() {
+		if self.showingBranchLog {
+			self.showAllBranchLogs()
+			return
+		}
+
 		switch self.c.UserConfig().Gui.StatusPanelView {
 		case "dashboard":
 			self.showDashboard()
@@ -84,6 +94,17 @@ func (self *StatusController) GetOnRenderToMain() func() {
 			self.showAllBranchLogs()
 		default:
 			self.showDashboard()
+		}
+	}
+}
+
+func (self *StatusController) GetOnFocusLost() func(types.OnFocusLostOpts) {
+	return func(opts types.OnFocusLostOpts) {
+		// Coming back to the panel shows its default view again; a popup or the main
+		// view taking the focus doesn't count as leaving it.
+		if newContext := self.c.ContextForKey(opts.NewContextKey); newContext != nil &&
+			newContext.GetKind() == types.SIDE_CONTEXT {
+			self.showingBranchLog = false
 		}
 	}
 }
@@ -170,6 +191,7 @@ func (self *StatusController) switchToOrRotateAllBranchesLogs() {
 	if self.c.Views().Main.Title != self.c.Tr.StatusTitle {
 		self.c.Git().Branch.RotateAllBranchesLogIdx()
 	}
+	self.showingBranchLog = true
 	self.showAllBranchLogs()
 }
 
@@ -182,6 +204,7 @@ func (self *StatusController) switchToOrRotateAllBranchesLogsBackward() {
 	if self.c.Views().Main.Title != self.c.Tr.StatusTitle {
 		self.c.Git().Branch.RotateAllBranchesLogIdxBackward()
 	}
+	self.showingBranchLog = true
 	self.showAllBranchLogs()
 }
 

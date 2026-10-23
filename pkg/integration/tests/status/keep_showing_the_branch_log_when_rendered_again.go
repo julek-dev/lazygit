@@ -27,10 +27,7 @@ var KeepShowingTheBranchLogWhenRenderedAgain = NewIntegrationTest(NewIntegration
 			Press(keys.Universal.NextScreenMode)
 
 		t.Views().Main().
-			/* EXPECTED:
 			Content(Contains("view2"))
-			ACTUAL: */
-			Content(Contains("Copyright"))
 
 		t.Views().Status().
 			Press(keys.Universal.OptionMenu)
@@ -40,10 +37,7 @@ var KeepShowingTheBranchLogWhenRenderedAgain = NewIntegrationTest(NewIntegration
 			Cancel()
 
 		t.Views().Main().
-			/* EXPECTED:
 			Content(Contains("view2"))
-			ACTUAL: */
-			Content(Contains("Copyright"))
 
 		// Coming back from another panel shows the panel's default view again.
 		t.Views().Files().

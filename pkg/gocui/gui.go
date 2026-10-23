@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell/v3"
+	"github.com/gdamore/tcell/v3/vt"
 	"github.com/go-errors/errors"
 	"github.com/jesseduffield/generics/set"
 	"github.com/petermattis/goid"
@@ -144,6 +145,9 @@ type Gui struct {
 	// bypass the busy-tracking that integration tests rely on.
 	replayedEvents replayedEvents
 	playRecording  bool
+	// The terminal a headless Gui draws to, which tests resize through
+	// ReplayResizeEvent. nil when not headless.
+	mockTerm vt.MockTerm
 
 	tabClickBindings         []*tabClickBinding
 	viewMouseBindings        []*ViewMouseBinding
@@ -382,6 +386,26 @@ func (g *Gui) ReplayMouseEvent(ev *TcellMouseEventWrapper) {
 func (g *Gui) ReplayFocusEvent(ev *TcellFocusEventWrapper) {
 	ev.task = g.NewTask()
 	g.replayedEvents.FocusEvents <- ev
+}
+
+// ReplayResizeEvent resizes the terminal of a headless Gui, and then replays the
+// resize event a real terminal sends. Like ReplayKeyEvent, it marks the program as
+// busy until the event has been processed. A Gui that isn't headless draws to a
+// real terminal, which it can't resize.
+func (g *Gui) ReplayResizeEvent(width, height int) error {
+	if g.mockTerm == nil {
+		return errors.New("the terminal can only be resized when lazygit runs headless")
+	}
+
+	g.mockTerm.SetSize(vt.Coord{X: vt.Col(width), Y: vt.Row(height)})
+	// For a real terminal, tcell takes the new size before it reports the resize.
+	// For the mock terminal, it only reports it, and keeps the old size until the
+	// screen is synced, which would be after the layout that the event leads to.
+	Screen.Sync()
+
+	// Playback doesn't read tcell's own events, so the resize is replayed.
+	g.replayedEvents.Resizes <- &TcellResizeEventWrapper{Width: width, Height: height, task: g.NewTask()}
+	return nil
 }
 
 // Busy reports whether any foreground work is in flight, ignoring the event

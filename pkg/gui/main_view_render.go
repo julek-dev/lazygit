@@ -8,11 +8,13 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/jesseduffield/lazygit/pkg/config"
 	"github.com/jesseduffield/lazygit/pkg/gocui"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/lazygit/pkg/tasks"
+	"github.com/jesseduffield/lazygit/pkg/utils"
 	"github.com/samber/lo"
 )
 
@@ -31,6 +33,9 @@ type renderSpec struct {
 	// way it runs, so it doesn't appear here; nothing else is a command of its
 	// own.
 	stdinFilter string
+	// Whether the render comes out differently at another width, so that it has
+	// to be rendered again when the view's width changes.
+	dependsOnWidth bool
 }
 
 // newRenderTask renders cmd's output into view, through the diff renderer the
@@ -118,6 +123,8 @@ func (gui *Gui) newRenderTask(view *gocui.View, cmd *exec.Cmd, prefix types.Pref
 			cmd:         cmd,
 			width:       width,
 			stdinFilter: stdinFilter,
+			// A diff renderer can do anything with the width it is told.
+			dependsOnWidth: true,
 		}
 		run := gui.ptyRender
 		if rendersThroughAPipe() {
@@ -140,6 +147,93 @@ func (gui *Gui) renderWidth(view *gocui.View) int {
 	return max(0, width)
 }
 
+// mainViewsNeedRenderingAtNewWidth reports whether a visible pane of the main window
+// shows content rendered while it was of a different width. A diff renderer lays
+// the diff out to the width of the view when it runs (a side-by-side diff does), and so
+// does git for its diffstat, so content rendered before the view's width changed has to
+// be rendered again: after the terminal was resized, or the main view was focused in
+// half or full screen mode, which hides the side panels.
+func (gui *Gui) mainViewsNeedRenderingAtNewWidth() bool {
+	return lo.SomeBy([]*gocui.View{gui.Views.Main, gui.Views.Secondary}, func(view *gocui.View) bool {
+		width, ok := gui.renderedViewWidths[view.Name()]
+		return ok && gui.isShownInItsWindow(view) && width != view.InnerWidth()
+	})
+}
+
+// renderAtNewWidthDelay is how long the main window's panes wait for their width to
+// settle before they are rendered again for it, so that dragging the edge of the
+// terminal window renders them once rather than at every width it passes through.
+const renderAtNewWidthDelay = 100 * time.Millisecond
+
+// scheduleRenderAtNewWidth renders the main window's panes again once their width has
+// settled, if they show content rendered while they were of a different width.
+func (gui *Gui) scheduleRenderAtNewWidth() {
+	if !gui.mainViewsNeedRenderingAtNewWidth() || !gui.canRenderMainViewsAtNewWidth() {
+		return
+	}
+	widths := [2]int{gui.Views.Main.InnerWidth(), gui.Views.Secondary.InnerWidth()}
+	if widths == gui.scheduledRenderWidths {
+		return
+	}
+	gui.scheduledRenderWidths = widths
+	gui.renderAtNewWidthGeneration++
+	generation := gui.renderAtNewWidthGeneration
+
+	// The wait counts as work in progress, so that lazygit isn't taken to be idle
+	// before the render.
+	task := gui.g.NewBackgroundTask()
+	time.AfterFunc(renderAtNewWidthDelay, utils.SafeFunc(func() {
+		gui.onUIThreadBackground(func() error {
+			defer task.Done()
+			if generation != gui.renderAtNewWidthGeneration {
+				// The width changed again in the meantime.
+				return nil
+			}
+			gui.scheduledRenderWidths = [2]int{}
+			if gui.mainViewsNeedRenderingAtNewWidth() && gui.canRenderMainViewsAtNewWidth() {
+				gui.helpers.Diff.RenderToMainAgain()
+				gui.forgetMainViewRenderWidths()
+			}
+			return nil
+		})
+	}))
+}
+
+// canRenderMainViewsAtNewWidth reports whether the main window's panes can be rendered
+// again for a new width now. Until they can, nothing is scheduled: a layout that comes
+// once they can, such as when a popup closes, checks again.
+func (gui *Gui) canRenderMainViewsAtNewWidth() bool {
+	return gui.helpers.Diff.CanRenderToMainAgain() && !gui.mainViewsAwaitRender()
+}
+
+// mainViewsAwaitRender reports whether a pane of the main window has a position waiting
+// to be put back by its next render. That render is on its way and is laid out at the
+// width the pane has by then. Rendering the pane again now would take the position over
+// from it, and with it whatever waits for the position to be put back, such as the
+// input that staging a line holds back until then.
+func (gui *Gui) mainViewsAwaitRender() bool {
+	return lo.SomeBy([]*gocui.View{gui.Views.Main, gui.Views.Secondary}, func(view *gocui.View) bool {
+		manager := gui.getViewBufferManagerForView(view)
+		return manager != nil && manager.HasRestoreForNextTask()
+	})
+}
+
+// isShownInItsWindow reports whether a pane of the main window is the view its window
+// shows. A view that another one has taken the window over from may still be marked as
+// visible, as the main view is behind the merge conflicts view.
+func (gui *Gui) isShownInItsWindow(view *gocui.View) bool {
+	return view.Visible &&
+		gui.helpers.Window.GetViewNameForWindow(gui.mainContextForView(view).GetWindowName()) == view.Name()
+}
+
+// forgetMainViewRenderWidths stops the main window's panes from being rendered again
+// for the width they have now, once they have been. Their new renders record the width
+// again; this is for a pane that doesn't get one.
+func (gui *Gui) forgetMainViewRenderWidths() {
+	delete(gui.renderedViewWidths, gui.Views.Main.Name())
+	delete(gui.renderedViewWidths, gui.Views.Secondary.Name())
+}
+
 // The start and onClose functions a render hands to its task: how to get the
 // command running and the output reader for it, and how to tear it down again
 // once the task is stopped.
@@ -159,6 +253,13 @@ type runRender func(spec renderSpec) (startRender, onCloseRender)
 // a re-render of the same content can be told from a render of other content.
 func (gui *Gui) newTaskForRender(reservation tasks.TaskReservation, spec renderSpec, prefix types.Prefix, key string, run runRender) error {
 	setColumnsEnvVar(spec.cmd, spec.width)
+	if spec.dependsOnWidth {
+		// The width that the render is laid out to is the view's, less the custom
+		// patch's marks; those come and go with renders of their own.
+		gui.renderedViewWidths[spec.view.Name()] = spec.view.InnerWidth()
+	} else {
+		delete(gui.renderedViewWidths, spec.view.Name())
+	}
 
 	start, onClose := run(spec)
 

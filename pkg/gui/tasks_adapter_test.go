@@ -22,3 +22,20 @@ func TestStartCmdWithPipeWhenPipeCannotBeCreated(t *testing.T) {
 	// not return one even when it can't create the pipe.
 	assert.NotNil(t, r)
 }
+
+func TestAsksForDiffstat(t *testing.T) {
+	scenarios := []struct {
+		args     []string
+		expected bool
+	}{
+		{[]string{"git", "show", "--stat", "-p", "abc123"}, true},
+		{[]string{"git", "show", "--stat=80", "abc123"}, true},
+		{[]string{"git", "log", "--patch-with-stat"}, true},
+		{[]string{"git", "diff", "--", "file"}, false},
+		{[]string{"git", "log", "--graph", "--all"}, false},
+	}
+
+	for _, s := range scenarios {
+		assert.Equal(t, s.expected, asksForDiffstat(s.args), s.args)
+	}
+}

@@ -38,10 +38,7 @@ var RerenderDiffRendererWhenResizingTerminal = NewIntegrationTest(NewIntegration
 		t.ResizeTerminal(250, 100)
 
 		t.Views().Main().
-			/* EXPECTED:
 			Content(Contains("COLUMNWIDTH=76"))
-			ACTUAL: */
-			Content(Contains("COLUMNWIDTH=43"))
 
 		// The same goes for the focused main view, and its selection stays on the
 		// line it was on.
@@ -57,10 +54,7 @@ var RerenderDiffRendererWhenResizingTerminal = NewIntegrationTest(NewIntegration
 		t.ResizeTerminal(200, 100)
 
 		t.Views().Main().
-			/* EXPECTED:
 			Content(Contains("COLUMNWIDTH=59")).
-			ACTUAL: */
-			Content(Contains("COLUMNWIDTH=43")).
 			SelectedLines(Contains(" first line"))
 	},
 })

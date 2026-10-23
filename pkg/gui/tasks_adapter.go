@@ -3,6 +3,7 @@ package gui
 import (
 	"io"
 	"os/exec"
+	"slices"
 	"strings"
 
 	"github.com/jesseduffield/lazygit/pkg/gocui"
@@ -45,11 +46,26 @@ func (gui *Gui) newCmdTask(view *gocui.View, cmd *exec.Cmd, prefix types.Prefix)
 			return nil
 		}
 
-		spec := renderSpec{view: view, cmd: cmd, width: gui.renderWidth(view)}
+		spec := renderSpec{
+			view:  view,
+			cmd:   cmd,
+			width: gui.renderWidth(view),
+			// A prefix can be laid out to the width, by wrapping its text or ruling a line
+			// across the view, and so is git's diffstat.
+			dependsOnWidth: prefix != nil || asksForDiffstat(cmd.Args),
+		}
 		return gui.newTaskForRender(reservation, spec, prefix, cmdStr, gui.plainRender)
 	})
 
 	return nil
+}
+
+// asksForDiffstat reports whether a git command's output opens with a diffstat, the
+// only part of git's own output that it lays out to the width it is told.
+func asksForDiffstat(args []string) bool {
+	return slices.ContainsFunc(args, func(arg string) bool {
+		return arg == "--stat" || strings.HasPrefix(arg, "--stat=") || arg == "--patch-with-stat"
+	})
 }
 
 // plainRender runs the command as it is, with its output going straight into
@@ -104,6 +120,7 @@ func (gui *Gui) newStringTask(view *gocui.View, str string) error {
 }
 
 func (gui *Gui) newStringTaskWithoutScroll(view *gocui.View, str string) error {
+	delete(gui.renderedViewWidths, view.Name())
 	manager := gui.getManager(view)
 	// Whatever the view was going to be put back to belonged to a re-render of its
 	// content; this is a message instead, so there is nothing to put back.
@@ -125,6 +142,7 @@ func (gui *Gui) newStringTaskWithoutScroll(view *gocui.View, str string) error {
 }
 
 func (gui *Gui) newStringTaskWithScroll(view *gocui.View, str string, originX int, originY int) error {
+	delete(gui.renderedViewWidths, view.Name())
 	manager := gui.getManager(view)
 	// Whatever the view was going to be put back to belonged to a re-render of its
 	// content; this is a message instead, so there is nothing to put back.
@@ -147,6 +165,7 @@ func (gui *Gui) newStringTaskWithScroll(view *gocui.View, str string, originX in
 }
 
 func (gui *Gui) newStringTaskWithKey(view *gocui.View, str string, key string) error {
+	delete(gui.renderedViewWidths, view.Name())
 	manager := gui.getManager(view)
 	// Whatever the view was going to be put back to belonged to a re-render of its
 	// content; this is a message instead, so there is nothing to put back.

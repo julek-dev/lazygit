@@ -124,18 +124,24 @@ func (self *DiffHelper) ExitDiffMode() error {
 // that is what the main view shows. This is for when something that the
 // rendering depends on has changed, such as the diff renderer.
 func (self *DiffHelper) RenderToMainAgain() {
-	currentSide := self.c.Context().CurrentSide()
-	currentKey := self.c.Context().Current().GetKey()
-	if currentSide.GetKey() == currentKey ||
-		currentKey == context.NORMAL_MAIN_CONTEXT_KEY ||
-		currentKey == context.NORMAL_SECONDARY_CONTEXT_KEY {
+	if self.CanRenderToMainAgain() {
 		// Whatever changed can make the diff come out differently, such as a new
 		// renderer laying it out its own way, so the line you were looking at could
 		// end up anywhere in the view; keep it in front of you.
 		self.diffLineHelper.PreserveDiffPositionOnRerender(self.c.Contexts().Normal.GetView())
 		self.diffLineHelper.PreserveDiffPositionOnRerender(self.c.Contexts().NormalSecondary.GetView())
-		currentSide.HandleRenderToMain()
+		self.c.Context().CurrentSide().HandleRenderToMain()
 	}
+}
+
+// CanRenderToMainAgain reports whether RenderToMainAgain would render, i.e. whether
+// the main view shows the current side panel's content, which it doesn't while e.g. a
+// popup has the focus.
+func (self *DiffHelper) CanRenderToMainAgain() bool {
+	currentKey := self.c.Context().Current().GetKey()
+	return self.c.Context().CurrentSide().GetKey() == currentKey ||
+		currentKey == context.NORMAL_MAIN_CONTEXT_KEY ||
+		currentKey == context.NORMAL_SECONDARY_CONTEXT_KEY
 }
 
 func (self *DiffHelper) RenderDiff() {

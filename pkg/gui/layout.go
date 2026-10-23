@@ -212,6 +212,15 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		}
 	}
 
+	if gui.mainViewsNeedRenderingAtNewWidth() && gui.canRenderMainViewsAtNewWidth() {
+		// A render asked for before this layout is only created after it, at the new
+		// width, so there may be nothing left to do by then.
+		gui.afterLayout(func() error {
+			gui.scheduleRenderAtNewWidth()
+			return nil
+		})
+	}
+
 	for _, context := range contextsToRerender {
 		context.HandleRender()
 	}

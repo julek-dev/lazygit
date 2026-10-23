@@ -727,6 +727,17 @@ func (self *ViewDriver) PressRapidly(keys ...config.Keybinding) *ViewDriver {
 	return self
 }
 
+// Presses the given key and resizes the terminal right after it, without
+// waiting for lazygit to become idle in between, so that the terminal is
+// resized while the key is still being acted on.
+func (self *ViewDriver) PressAndResizeTerminal(key config.Keybinding, width, height int) *ViewDriver {
+	self.IsFocused()
+
+	self.t.pressAndResizeTerminal(key[0], width, height)
+
+	return self
+}
+
 func (self *ViewDriver) Click(x, y int) *ViewDriver {
 	offsetX, offsetY, _ := self.viewGeometry()
 

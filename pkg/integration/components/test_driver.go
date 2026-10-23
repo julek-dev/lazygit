@@ -136,6 +136,20 @@ func (self *TestDriver) FocusIn() {
 	self.Wait(self.inputDelay)
 }
 
+// ResizeTerminal resizes the terminal lazygit runs in, e.g. as zooming a tmux pane
+// does. It only works when running headless.
+func (self *TestDriver) ResizeTerminal(width, height int) {
+	self.SetCaption(fmt.Sprintf("Resizing the terminal to %dx%d", width, height))
+	self.gui.ResizeTerminal(width, height)
+	self.Wait(self.inputDelay)
+}
+
+func (self *TestDriver) pressAndResizeTerminal(keyStr string, width, height int) {
+	self.SetCaption(fmt.Sprintf("Pressing %s and resizing the terminal to %dx%d", keyStr, width, height))
+	self.gui.PressKeyAndResizeTerminal(keyStr, width, height)
+	self.Wait(self.inputDelay)
+}
+
 func (self *TestDriver) focusInAndClick(x, y int) {
 	self.SetCaption(fmt.Sprintf("Focusing window and clicking %d, %d", x, y))
 	self.gui.FocusInAndClick(x, y)

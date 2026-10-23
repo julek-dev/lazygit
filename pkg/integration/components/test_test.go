@@ -88,6 +88,13 @@ func (self *fakeGuiDriver) FocusInAndClick(x, y int) {
 	self.clickedCoordinates = append(self.clickedCoordinates, coordinate{x: x, y: y})
 }
 
+func (self *fakeGuiDriver) ResizeTerminal(width, height int) {
+}
+
+func (self *fakeGuiDriver) PressKeyAndResizeTerminal(keyStr string, width, height int) {
+	self.pressedKeys = append(self.pressedKeys, keyStr)
+}
+
 func (self *fakeGuiDriver) Keys() config.KeybindingConfig {
 	return config.KeybindingConfig{}
 }

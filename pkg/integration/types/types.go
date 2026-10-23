@@ -50,6 +50,13 @@ type GuiDriver interface {
 	// Simulate a terminal dispatching focus-in immediately followed by a click,
 	// without waiting for the focus refresh to finish in between.
 	FocusInAndClick(int, int)
+	// Resize the terminal, e.g. as zooming a tmux pane does. Only works when
+	// running headless.
+	ResizeTerminal(width, height int)
+	// Like PressKey followed by ResizeTerminal, but without waiting for lazygit to
+	// become idle in between, so that the terminal is resized while the key is
+	// still being acted on.
+	PressKeyAndResizeTerminal(keyStr string, width, height int)
 	Keys() config.KeybindingConfig
 	CurrentContext() types.Context
 	// Whether the terminal's text cursor is currently shown

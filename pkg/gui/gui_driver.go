@@ -36,17 +36,21 @@ func (self *GuiDriver) PressKeysRapidly(keyStrs ...string) {
 	self.CheckAllToastsAcknowledged()
 
 	for _, keyStr := range keyStrs {
-		key, ok := config.KeyFromLabel(keyStr)
-		if !ok {
-			self.Fail("Unrecognized key: " + keyStr)
-		}
-
-		self.gui.g.ReplayKeyEvent(gocui.NewTcellKeyEventWrapper(
-			tcell.NewEventKey(tcell.Key(key.KeyName()), key.Str(), tcell.ModMask(key.Mod())),
-		))
+		self.replayKeyEventWithoutWaiting(keyStr)
 	}
 
 	self.waitTillIdle()
+}
+
+func (self *GuiDriver) replayKeyEventWithoutWaiting(keyStr string) {
+	key, ok := config.KeyFromLabel(keyStr)
+	if !ok {
+		self.Fail("Unrecognized key: " + keyStr)
+	}
+
+	self.gui.g.ReplayKeyEvent(gocui.NewTcellKeyEventWrapper(
+		tcell.NewEventKey(tcell.Key(key.KeyName()), key.Str(), tcell.ModMask(key.Mod())),
+	))
 }
 
 func (self *GuiDriver) Click(x, y int) {
@@ -150,6 +154,27 @@ func (self *GuiDriver) FocusInAndClick(x, y int) {
 		tcell.NewEventMouse(x, y, tcell.ButtonNone, 0),
 	))
 	self.waitTillIdle()
+}
+
+// ResizeTerminal resizes the terminal lazygit runs in, as a user resizing their
+// terminal window (or zooming a tmux pane) does.
+func (self *GuiDriver) ResizeTerminal(width, height int) {
+	self.replayResizeEventWithoutWaiting(width, height)
+	self.waitTillIdle()
+}
+
+func (self *GuiDriver) PressKeyAndResizeTerminal(keyStr string, width, height int) {
+	self.CheckAllToastsAcknowledged()
+
+	self.replayKeyEventWithoutWaiting(keyStr)
+	self.replayResizeEventWithoutWaiting(width, height)
+	self.waitTillIdle()
+}
+
+func (self *GuiDriver) replayResizeEventWithoutWaiting(width, height int) {
+	if err := self.gui.g.ReplayResizeEvent(width, height); err != nil {
+		self.Fail(err.Error())
+	}
 }
 
 // RefreshInBackground performs the refresh that the background routines perform

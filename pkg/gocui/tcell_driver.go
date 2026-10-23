@@ -103,6 +103,7 @@ func (g *Gui) tcellInitSimulation(width int, height int) error {
 	}
 
 	g.screen = s
+	g.mockTerm = mt
 	Screen = s
 	s.Sync()
 	return nil
@@ -271,6 +272,8 @@ func (wrapper TcellMouseEventWrapper) toTcellEvent() tcell.Event {
 type TcellResizeEventWrapper struct {
 	Width  int
 	Height int
+
+	task Task // see GocuiEvent.task
 }
 
 func NewTcellResizeEventWrapper(event *tcell.EventResize) *TcellResizeEventWrapper {
@@ -313,6 +316,7 @@ func (g *Gui) pollEvent() GocuiEvent {
 			task = ev.task
 		case ev := <-g.replayedEvents.Resizes:
 			tev = ev.toTcellEvent()
+			task = ev.task
 		case ev := <-g.replayedEvents.MouseEvents:
 			tev = ev.toTcellEvent()
 			task = ev.task

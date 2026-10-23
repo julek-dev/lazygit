@@ -36,17 +36,21 @@ func (self *GuiDriver) PressKeysRapidly(keyStrs ...string) {
 	self.CheckAllToastsAcknowledged()
 
 	for _, keyStr := range keyStrs {
-		key, ok := config.KeyFromLabel(keyStr)
-		if !ok {
-			self.Fail("Unrecognized key: " + keyStr)
-		}
-
-		self.gui.g.ReplayKeyEvent(gocui.NewTcellKeyEventWrapper(
-			tcell.NewEventKey(tcell.Key(key.KeyName()), key.Str(), tcell.ModMask(key.Mod())),
-		))
+		self.replayKeyEventWithoutWaiting(keyStr)
 	}
 
 	self.waitTillIdle()
+}
+
+func (self *GuiDriver) replayKeyEventWithoutWaiting(keyStr string) {
+	key, ok := config.KeyFromLabel(keyStr)
+	if !ok {
+		self.Fail("Unrecognized key: " + keyStr)
+	}
+
+	self.gui.g.ReplayKeyEvent(gocui.NewTcellKeyEventWrapper(
+		tcell.NewEventKey(tcell.Key(key.KeyName()), key.Str(), tcell.ModMask(key.Mod())),
+	))
 }
 
 func (self *GuiDriver) Click(x, y int) {

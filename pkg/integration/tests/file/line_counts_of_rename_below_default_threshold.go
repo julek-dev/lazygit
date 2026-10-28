@@ -24,10 +24,7 @@ var LineCountsOfRenameBelowDefaultThreshold = NewIntegrationTest(NewIntegrationT
 		t.Views().Files().
 			IsFocused().
 			Lines(
-				/* EXPECTED:
 				Equals("R  original → renamed +5"),
-				ACTUAL: */
-				Equals("R  original → renamed"),
 			)
 	},
 })

@@ -64,7 +64,7 @@ func (self *FileLoader) GetStatusFiles(opts GetStatusFileOptions) []*models.File
 
 	fileDiffs := map[string]FileDiff{}
 	if self.GitCommon.Common.UserConfig().Gui.ShowNumstatInFilesView {
-		fileDiffs, err = self.getFileDiffs()
+		fileDiffs, err = self.getFileDiffs(opts.NoRenames)
 		if err != nil {
 			self.Log.Error(err)
 		}
@@ -192,8 +192,8 @@ func (self *FileLoader) getConflictMarkerSizes(paths []string) (map[string]int, 
 	return markerSizes, nil
 }
 
-func (self *FileLoader) getFileDiffs() (map[string]FileDiff, error) {
-	diffs, err := self.gitDiffNumStat()
+func (self *FileLoader) getFileDiffs(noRenames bool) (map[string]FileDiff, error) {
+	diffs, err := self.gitDiffNumStat(noRenames)
 	if err != nil {
 		return nil, err
 	}
@@ -215,11 +215,12 @@ type FileStatus struct {
 	PreviousPath string
 }
 
-func (self *FileLoader) gitDiffNumStat() (string, error) {
+func (self *FileLoader) gitDiffNumStat(noRenames bool) (string, error) {
 	return self.cmd.New(
 		NewGitCmd("diff").
 			Arg("--numstat").
 			Arg("-z").
+			Arg(self.renamesArg(noRenames)).
 			Arg("HEAD").
 			ToArgv(),
 	).DontLog().RunWithOutput()

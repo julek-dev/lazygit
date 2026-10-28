@@ -37,10 +37,7 @@ func TestFileGetStatusFiles(t *testing.T) {
 					nil,
 				).
 				ExpectGitArgs(
-					/* EXPECTED:
 					[]string{"diff", "--numstat", "-z", "--find-renames=50%", "HEAD"},
-					ACTUAL: */
-					[]string{"diff", "--numstat", "-z", "HEAD"},
 					"4\t1\tfile1.txt\x001\t0\tfile2.txt\x002\t2\tfile3.txt\x000\t2\tfile4.txt\x002\t2\tfile5.txt",
 					nil,
 				).
@@ -261,10 +258,7 @@ func TestFileGetStatusFiles(t *testing.T) {
 					nil,
 				).
 				ExpectGitArgs(
-					/* EXPECTED:
 					[]string{"diff", "--numstat", "-z", "--find-renames=50%", "HEAD"},
-					ACTUAL: */
-					[]string{"diff", "--numstat", "-z", "HEAD"},
 					"3\t1\t\x00before.txt\x00after.txt\x002\t2\tother.txt\x00",
 					nil,
 				),

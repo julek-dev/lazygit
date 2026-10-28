@@ -97,7 +97,10 @@ func (self *FileLoader) GetStatusFiles(opts GetStatusFileOptions) []*models.File
 			)
 		}
 
-		if diff, ok := fileDiffs[status.Path]; ok {
+		// The diff pairs up renames between HEAD and the worktree, whereas
+		// status does so between HEAD and the index. Counts of a different
+		// pairing would be those of a different change.
+		if diff, ok := fileDiffs[status.Path]; ok && diff.PreviousPath == status.PreviousPath {
 			file.LinesAdded = diff.LinesAdded
 			file.LinesDeleted = diff.LinesDeleted
 		}

@@ -23,10 +23,7 @@ var RenameThatTheDiffDoesNotSee = NewIntegrationTest(NewIntegrationTestArgs{
 		t.Views().Files().
 			IsFocused().
 			Lines(
-				/* EXPECTED:
 				Equals("RM original → renamed"),
-				ACTUAL: */
-				Equals("RM original → renamed +3"),
 			)
 	},
 })

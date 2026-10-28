@@ -270,12 +270,8 @@ func TestFileGetStatusFiles(t *testing.T) {
 					Tracked:            true,
 					DisplayString:      "RM before.txt -> after.txt",
 					ShortStatus:        "RM",
-					/* EXPECTED:
 					LinesAdded:         3,
 					LinesDeleted:       1,
-					ACTUAL: */
-					LinesAdded:   0,
-					LinesDeleted: 0,
 				},
 				{
 					Path:               "other.txt",

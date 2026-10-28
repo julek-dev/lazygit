@@ -225,16 +225,20 @@ func (self *FileLoader) gitDiffNumStat() (string, error) {
 	).DontLog().RunWithOutput()
 }
 
+// renamesArg has git detect renames as configured, or not at all.
+func (self *FileLoader) renamesArg(noRenames bool) string {
+	if noRenames {
+		return "--no-renames"
+	}
+	return fmt.Sprintf("--find-renames=%d%%", self.UserConfig().Git.RenameSimilarityThreshold)
+}
+
 func (self *FileLoader) gitStatus(opts GitStatusOptions) ([]FileStatus, error) {
 	cmdArgs := NewGitCmd("status").
 		Arg(opts.UntrackedFilesArg).
 		Arg("--porcelain").
 		Arg("-z").
-		ArgIfElse(
-			opts.NoRenames,
-			"--no-renames",
-			fmt.Sprintf("--find-renames=%d%%", self.UserConfig().Git.RenameSimilarityThreshold),
-		).
+		Arg(self.renamesArg(opts.NoRenames)).
 		ToArgv()
 
 	cmdObj := self.cmd.New(cmdArgs).DontLog()

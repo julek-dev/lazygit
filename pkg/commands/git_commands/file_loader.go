@@ -189,43 +189,13 @@ func (self *FileLoader) getConflictMarkerSizes(paths []string) (map[string]int, 
 	return markerSizes, nil
 }
 
-type FileDiff struct {
-	LinesAdded   int
-	LinesDeleted int
-}
-
 func (self *FileLoader) getFileDiffs() (map[string]FileDiff, error) {
 	diffs, err := self.gitDiffNumStat()
 	if err != nil {
 		return nil, err
 	}
 
-	splitLines := strings.Split(diffs, "\x00")
-
-	fileDiffs := map[string]FileDiff{}
-	for _, line := range splitLines {
-		splitLine := strings.Split(line, "\t")
-		if len(splitLine) != 3 {
-			continue
-		}
-
-		linesAdded, err := strconv.Atoi(splitLine[0])
-		if err != nil {
-			continue
-		}
-		linesDeleted, err := strconv.Atoi(splitLine[1])
-		if err != nil {
-			continue
-		}
-
-		fileName := splitLine[2]
-		fileDiffs[fileName] = FileDiff{
-			LinesAdded:   linesAdded,
-			LinesDeleted: linesDeleted,
-		}
-	}
-
-	return fileDiffs, nil
+	return parseNumstat(strings.Split(diffs, "\x00")), nil
 }
 
 // GitStatus returns the file status of the repo

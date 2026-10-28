@@ -261,6 +261,7 @@ var tests = []*components.IntegrationTest{
 	file.ExplainUntrackedDirectory,
 	file.Gitignore,
 	file.GitignoreSpecialCharacters,
+	file.LineCountsOfRenameBelowDefaultThreshold,
 	file.PaneShownAgainStartsAtTheTop,
 	file.PaneTakingOverStartsAtTheTop,
 	file.RememberCommitMessageAfterFail,

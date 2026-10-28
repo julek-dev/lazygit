@@ -249,6 +249,46 @@ func TestFileGetStatusFiles(t *testing.T) {
 			},
 		},
 		{
+			testName:            "Renamed file with numstat",
+			similarityThreshold: 50,
+			runner: oscommands.NewFakeRunner(t).
+				ExpectGitArgs([]string{"status", "--untracked-files=yes", "--porcelain", "-z", "--find-renames=50%"},
+					"RM after.txt\x00before.txt\x00 M other.txt",
+					nil,
+				).
+				ExpectGitArgs([]string{"diff", "--numstat", "-z", "HEAD"},
+					"3\t1\t\x00before.txt\x00after.txt\x002\t2\tother.txt\x00",
+					nil,
+				),
+			showNumstatInFilesView: true,
+			expectedFiles: []*models.File{
+				{
+					Path:               "after.txt",
+					PreviousPath:       "before.txt",
+					HasStagedChanges:   true,
+					HasUnstagedChanges: true,
+					Tracked:            true,
+					DisplayString:      "RM before.txt -> after.txt",
+					ShortStatus:        "RM",
+					/* EXPECTED:
+					LinesAdded:         3,
+					LinesDeleted:       1,
+					ACTUAL: */
+					LinesAdded:   0,
+					LinesDeleted: 0,
+				},
+				{
+					Path:               "other.txt",
+					HasUnstagedChanges: true,
+					Tracked:            true,
+					DisplayString:      " M other.txt",
+					ShortStatus:        " M",
+					LinesAdded:         2,
+					LinesDeleted:       2,
+				},
+			},
+		},
+		{
 			testName:            "File with arrow in name",
 			similarityThreshold: 50,
 			runner: oscommands.NewFakeRunner(t).

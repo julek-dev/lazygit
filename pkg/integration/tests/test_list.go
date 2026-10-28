@@ -265,6 +265,8 @@ var tests = []*components.IntegrationTest{
 	file.PaneTakingOverStartsAtTheTop,
 	file.RememberCommitMessageAfterFail,
 	file.RenameSimilarityThresholdChange,
+	file.RenameThatOnlyTheDiffSees,
+	file.RenameThatTheDiffDoesNotSee,
 	file.RenamedFiles,
 	file.RenamedFilesNoRootItem,
 	file.StageAllWithoutChangedFiles,

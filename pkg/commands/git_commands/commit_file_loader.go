@@ -23,11 +23,22 @@ func NewCommitFileLoader(common *common.Common, cmd oscommands.ICmdObjBuilder) *
 
 // GetFilesInDiff get the specified commit files
 func (self *CommitFileLoader) GetFilesInDiff(from string, to string, reverse bool) ([]*models.CommitFile, error) {
+	filenames, err := self.diff(from, to, reverse, "--name-status")
+	if err != nil {
+		return nil, err
+	}
+
+	return getCommitFilesFromFilenames(filenames), nil
+}
+
+// diff lists the files of the diff between from and to in the given output
+// format, e.g. "--name-status".
+func (self *CommitFileLoader) diff(from string, to string, reverse bool, format string) (string, error) {
 	cmdArgs := NewGitCmd("diff").
 		ParseableDiffPrefixes().
 		Arg("--submodule").
 		Arg("--no-ext-diff").
-		Arg("--name-status").
+		Arg(format).
 		Arg("-z").
 		Arg(fmt.Sprintf("--find-renames=%d%%", self.UserConfig().Git.RenameSimilarityThreshold)).
 		ArgIf(reverse, "-R").
@@ -35,12 +46,7 @@ func (self *CommitFileLoader) GetFilesInDiff(from string, to string, reverse boo
 		Arg(to).
 		ToArgv()
 
-	filenames, err := self.cmd.New(cmdArgs).DontLog().RunWithOutput()
-	if err != nil {
-		return nil, err
-	}
-
-	return getCommitFilesFromFilenames(filenames), nil
+	return self.cmd.New(cmdArgs).DontLog().RunWithOutput()
 }
 
 // filenames string is something like "MM\x00file1\x00MU\x00file2\x00AA\x00file3\x00"

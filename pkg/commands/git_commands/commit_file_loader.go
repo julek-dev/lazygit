@@ -21,14 +21,35 @@ func NewCommitFileLoader(common *common.Common, cmd oscommands.ICmdObjBuilder) *
 	}
 }
 
-// GetFilesInDiff get the specified commit files
-func (self *CommitFileLoader) GetFilesInDiff(from string, to string, reverse bool) ([]*models.CommitFile, error) {
+// GetFilesInDiff get the specified commit files. withNumstat also counts the
+// lines that the diff adds to and deletes from each of them.
+func (self *CommitFileLoader) GetFilesInDiff(from string, to string, reverse bool, withNumstat bool) ([]*models.CommitFile, error) {
 	filenames, err := self.diff(from, to, reverse, "--name-status")
 	if err != nil {
 		return nil, err
 	}
 
-	return getCommitFilesFromFilenames(filenames), nil
+	commitFiles := getCommitFilesFromFilenames(filenames)
+
+	if withNumstat {
+		numstat, err := self.diff(from, to, reverse, "--numstat")
+		if err != nil {
+			// Counting reads the content of every file, which can fail where
+			// listing them doesn't, e.g. in a partial clone that is offline.
+			self.Log.Error(err)
+			return commitFiles, nil
+		}
+
+		fileDiffs := parseNumstat(strings.Split(numstat, "\x00"))
+		for _, file := range commitFiles {
+			if diff, ok := fileDiffs[file.Path]; ok {
+				file.LinesAdded = diff.LinesAdded
+				file.LinesDeleted = diff.LinesDeleted
+			}
+		}
+	}
+
+	return commitFiles, nil
 }
 
 // diff lists the files of the diff between from and to in the given output

@@ -41,13 +41,14 @@ func RenderCommitFileTree(
 	tree *filetree.CommitFileTreeViewModel,
 	patchBuilder *patch.PatchBuilder,
 	showFileIcons bool,
+	showNumstat bool,
 	customIconsConfig *config.CustomIconsConfig,
 ) []string {
 	collapsedPaths := tree.CollapsedPaths()
 	return renderAux(tree.GetRoot().Raw(), collapsedPaths, -1, -1, func(node *filetree.Node[models.CommitFile], treeDepth int, visualDepth int, isCollapsed bool) string {
 		status := commitFilePatchStatus(node, tree, patchBuilder)
 
-		return getCommitFileLine(isCollapsed, treeDepth, visualDepth, node, status, showFileIcons, customIconsConfig)
+		return getCommitFileLine(isCollapsed, treeDepth, visualDepth, node, status, showFileIcons, showNumstat, customIconsConfig)
 	})
 }
 
@@ -252,6 +253,7 @@ func getCommitFileLine(
 	node *filetree.Node[models.CommitFile],
 	status patch.PatchStatus,
 	showFileIcons bool,
+	showNumstat bool,
 	customIconsConfig *config.CustomIconsConfig,
 ) string {
 	indentation := strings.Repeat("  ", visualDepth)
@@ -307,6 +309,13 @@ func getCommitFileLine(
 	}
 
 	output += nameColor.Sprint(name)
+
+	if commitFile != nil && showNumstat {
+		if lineChanges := formatLineChanges(commitFile.LinesAdded, commitFile.LinesDeleted); lineChanges != "" {
+			output += " " + lineChanges
+		}
+	}
+
 	return output
 }
 

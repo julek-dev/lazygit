@@ -168,6 +168,8 @@ type GuiConfig struct {
 	FileTreeSortCaseSensitive bool `yaml:"fileTreeSortCaseSensitive"`
 	// If true, show the number of lines changed per file in the Files view
 	ShowNumstatInFilesView bool `yaml:"showNumstatInFilesView"`
+	// If true (default), show the number of lines changed per file in the Commit Files view
+	ShowNumstatInCommitFilesView bool `yaml:"showNumstatInCommitFilesView"`
 	// If true, show a random tip in the command log when Lazygit starts
 	ShowRandomTip bool `yaml:"showRandomTip"`
 	// If true, show the command log
@@ -936,6 +938,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 			FileTreeSortOrder:                   "mixed",
 			FileTreeSortCaseSensitive:           true,
 			ShowNumstatInFilesView:              false,
+			ShowNumstatInCommitFilesView:        true,
 			ShowRandomTip:                       true,
 			ShowIcons:                           false,
 			NerdFontsVersion:                    "",

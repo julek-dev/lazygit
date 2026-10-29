@@ -461,7 +461,7 @@ func (self *CommitDiffActions) filesInDiff() (commitDiffFiles, error) {
 		return nil, nil
 	}
 	from, reverse := self.patchEndpoints(target)
-	files, err := self.c.Git().Loaders.CommitFileLoader.GetFilesInDiff(from, target.to, reverse)
+	files, err := self.c.Git().Loaders.CommitFileLoader.GetFilesInDiff(from, target.to, reverse, false)
 	if err != nil {
 		return nil, err
 	}

@@ -154,6 +154,7 @@ func TestRenderCommitFileTree(t *testing.T) {
 		files          []*models.CommitFile
 		collapsedPaths []string
 		showRootItem   bool
+		showNumstat    bool
 		expected       []string
 	}{
 		{
@@ -226,6 +227,24 @@ M file1
 			),
 			collapsedPaths: []string{"dir1"},
 		},
+		{
+			name: "numstat",
+			files: []*models.CommitFile{
+				{Path: "dir/file1", ChangeStatus: "M", LinesAdded: 3, LinesDeleted: 1},
+				{Path: "dir/file2", ChangeStatus: "D", LinesDeleted: 2},
+				{Path: "image.png", ChangeStatus: "M"},
+			},
+			showRootItem: false,
+			showNumstat:  true,
+			expected: toStringSlice(
+				`
+▼ dir
+  M file1 +3 -1
+  D file2 -2
+M image.png
+`,
+			),
+		},
 	}
 
 	oldColorLevel := color.ForceSetColorLevel(terminfo.ColorLevelNone)
@@ -251,7 +270,7 @@ M file1
 				nil,
 			)
 			patchBuilder.Start("from", "to", false, false)
-			result := RenderCommitFileTree(viewModel, patchBuilder, false, &config.CustomIconsConfig{})
+			result := RenderCommitFileTree(viewModel, patchBuilder, false, s.showNumstat, &config.CustomIconsConfig{})
 			assert.EqualValues(t, s.expected, result)
 		})
 	}

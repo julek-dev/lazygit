@@ -8,6 +8,9 @@ type CommitFile struct {
 	PreviousPath string
 
 	ChangeStatus string // e.g. 'A' for added or 'M' for modified. This is based on the result from git diff --name-status
+
+	LinesAdded   int
+	LinesDeleted int
 }
 
 func (f *CommitFile) ID() string {

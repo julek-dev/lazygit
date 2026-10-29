@@ -1198,6 +1198,11 @@
           "description": "If true, show the number of lines changed per file in the Files view",
           "default": false
         },
+        "showNumstatInCommitFilesView": {
+          "type": "boolean",
+          "description": "If true (default), show the number of lines changed per file in the Commit Files view",
+          "default": true
+        },
         "showRandomTip": {
           "type": "boolean",
           "description": "If true, show a random tip in the command log when Lazygit starts",

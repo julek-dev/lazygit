@@ -152,7 +152,7 @@ func (self *DiffHelper) RenderDiff() {
 		Pair: self.c.MainViewPairs().Normal,
 		Main: &types.ViewUpdateOpts{
 			Title:    "Diff",
-			SubTitle: self.IgnoringWhitespaceSubTitle(),
+			SubTitle: self.DiffOptionsSubTitle(),
 			Task:     task,
 		},
 	})
@@ -206,12 +206,14 @@ func (self *DiffHelper) WithDiffModeCheck(f func()) {
 	}
 }
 
-func (self *DiffHelper) IgnoringWhitespaceSubTitle() string {
+// DiffOptionsSubTitle lists the options in effect that change what a diff shows.
+func (self *DiffHelper) DiffOptionsSubTitle() string {
+	var options []string
 	if self.c.UserConfig().Git.IgnoreWhitespaceInDiffView {
-		return self.c.Tr.IgnoreWhitespaceDiffViewSubTitle
+		options = append(options, self.c.Tr.IgnoreWhitespaceDiffViewSubTitle)
 	}
 
-	return ""
+	return strings.Join(options, " ")
 }
 
 func (self *DiffHelper) OpenDiffToolForRef(selectedRef models.Ref) error {

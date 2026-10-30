@@ -345,7 +345,7 @@ func (self *FilesController) renderToMainWithTask(task types.UpdateTask) {
 		Pair: self.c.MainViewPairs().Normal,
 		Main: &types.ViewUpdateOpts{
 			Title:    self.c.Tr.DiffTitle,
-			SubTitle: self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
+			SubTitle: self.c.Helpers().Diff.DiffOptionsSubTitle(),
 			Task:     task,
 		},
 	})
@@ -449,7 +449,7 @@ func (self *FilesController) renderWorkingTreeDiff(node *filetree.FileNode) {
 		cmdObj := self.c.Git().WorkingTree.WorktreeFileDiffCmdObj(node, mode, false, paths)
 		refreshOpts.Main = &types.ViewUpdateOpts{
 			Task:           types.NewMainViewDiffTask(cmdObj.GetCmd(), mode),
-			SubTitle:       self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
+			SubTitle:       self.c.Helpers().Diff.DiffOptionsSubTitle(),
 			Title:          self.c.Tr.UnstagedChanges,
 			NothingToActOn: !node.GetHasUnstagedChanges(),
 		}
@@ -459,7 +459,7 @@ func (self *FilesController) renderWorkingTreeDiff(node *filetree.FileNode) {
 		cmdObj := self.c.Git().WorkingTree.WorktreeFileDiffCmdObj(node, mode, true, paths)
 		refreshOpts.Secondary = &types.ViewUpdateOpts{
 			Task:           types.NewMainViewDiffTask(cmdObj.GetCmd(), mode),
-			SubTitle:       self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
+			SubTitle:       self.c.Helpers().Diff.DiffOptionsSubTitle(),
 			Title:          self.c.Tr.StagedChanges,
 			NothingToActOn: !node.GetHasStagedChanges(),
 		}

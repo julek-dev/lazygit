@@ -93,7 +93,7 @@ func (self *CommitDiffActions) PrimaryAction(pane types.DiffPaneContext, firstBu
 		return self.removePatchLines(pane, firstBufferLine, lastBufferLine)
 	}
 
-	if self.c.UserConfig().Git.DiffContextSize == 0 {
+	if self.c.UserConfig().Git.EffectiveDiffContextSize() == 0 {
 		return fmt.Errorf(self.c.Tr.Actions.NotEnoughContextForCustomPatch,
 			self.c.UserConfig().Keybinding.Universal.IncreaseContextInDiffView)
 	}
@@ -300,7 +300,7 @@ func (self *CommitDiffActions) DiscardSelectionDisabledReason(pane types.DiffPan
 	if self.c.Git().Status.WorkingTreeState().Any() {
 		return &types.DisabledReason{Text: self.c.Tr.CantPatchWhileRebasingError, ShowErrorInPanel: true}
 	}
-	if self.c.UserConfig().Git.DiffContextSize == 0 {
+	if self.c.UserConfig().Git.EffectiveDiffContextSize() == 0 {
 		return &types.DisabledReason{
 			Text: fmt.Sprintf(self.c.Tr.Actions.NotEnoughContextToRemoveLines,
 				self.c.UserConfig().Keybinding.Universal.IncreaseContextInDiffView),

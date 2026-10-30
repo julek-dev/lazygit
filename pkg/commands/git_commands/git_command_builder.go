@@ -162,7 +162,7 @@ func (self *GitCommandBuilder) ParseableDiffPrefixes() *GitCommandBuilder {
 }
 
 func (self *GitCommandBuilder) AddCommonDiffArgs(diffRendererConfigManager *config.DiffRendererConfigManager, userConfig *config.UserConfig, mode DiffMode) *GitCommandBuilder {
-	contextSize := userConfig.Git.DiffContextSize
+	contextSize := userConfig.Git.EffectiveDiffContextSize()
 	useExtDiff := mode == DiffModeRendered && diffRendererConfigManager.GetDiffRendererType() == config.DiffRendererType_ExtDiff
 
 	return self.

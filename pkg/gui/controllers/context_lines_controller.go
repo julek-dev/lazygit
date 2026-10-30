@@ -7,7 +7,7 @@ import (
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 )
 
-// This controller lets you change the context size for diffs. The 'context' in 'context size' refers to the conventional meaning of the word 'context' in a diff, as opposed to lazygit's own idea of a 'context'.
+// This controller lets you change the context size for diffs, up to showing the whole file. The 'context' in 'context size' refers to the conventional meaning of the word 'context' in a diff, as opposed to lazygit's own idea of a 'context'.
 
 type ContextLinesController struct {
 	baseController
@@ -39,6 +39,12 @@ func (self *ContextLinesController) GetKeybindings(opts types.KeybindingsOpts) [
 			Description: self.c.Tr.DecreaseContextInDiffView,
 			Tooltip:     self.c.Tr.DecreaseContextInDiffViewTooltip,
 		},
+		{
+			Keys:        opts.GetKeys(opts.Config.Universal.ToggleWholeFileInDiffView),
+			Handler:     self.ToggleWholeFile,
+			Description: self.c.Tr.ToggleWholeFileInDiffView,
+			Tooltip:     self.c.Tr.ToggleWholeFileInDiffViewTooltip,
+		},
 	}
 
 	return bindings
@@ -49,6 +55,11 @@ func (self *ContextLinesController) Context() types.Context {
 }
 
 func (self *ContextLinesController) Increase() error {
+	if self.c.UserConfig().Git.ShowWholeFileInDiffView {
+		self.c.Toast(self.c.Tr.AlreadyShowingWholeFile)
+		return nil
+	}
+
 	if self.c.UserConfig().Git.DiffContextSize < math.MaxUint64 {
 		self.c.UserConfig().Git.DiffContextSize++
 	}
@@ -56,10 +67,19 @@ func (self *ContextLinesController) Increase() error {
 }
 
 func (self *ContextLinesController) Decrease() error {
-	if self.c.UserConfig().Git.DiffContextSize > 0 {
+	// Less than the whole file is the usual context size, not one line less of it.
+	if self.c.UserConfig().Git.ShowWholeFileInDiffView {
+		self.c.UserConfig().Git.ShowWholeFileInDiffView = false
+	} else if self.c.UserConfig().Git.DiffContextSize > 0 {
 		self.c.UserConfig().Git.DiffContextSize--
 	}
 	return self.applyChange()
+}
+
+func (self *ContextLinesController) ToggleWholeFile() error {
+	self.c.UserConfig().Git.ShowWholeFileInDiffView = !self.c.UserConfig().Git.ShowWholeFileInDiffView
+	self.rerenderDiff()
+	return nil
 }
 
 func (self *ContextLinesController) applyChange() error {

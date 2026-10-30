@@ -212,6 +212,9 @@ func (self *DiffHelper) DiffOptionsSubTitle() string {
 	if self.c.UserConfig().Git.IgnoreWhitespaceInDiffView {
 		options = append(options, self.c.Tr.IgnoreWhitespaceDiffViewSubTitle)
 	}
+	if self.c.UserConfig().Git.ShowWholeFileInDiffView {
+		options = append(options, self.c.Tr.WholeFileDiffViewSubTitle)
+	}
 
 	return strings.Join(options, " ")
 }

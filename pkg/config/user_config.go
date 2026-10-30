@@ -349,6 +349,8 @@ type GitConfig struct {
 	IgnoreWhitespaceInDiffView bool `yaml:"ignoreWhitespaceInDiffView"`
 	// The number of lines of context to show around each diff hunk. Can be changed from within Lazygit with the `{` and `}` keys.
 	DiffContextSize uint64 `yaml:"diffContextSize"`
+	// If true, diffs show the whole file instead of `diffContextSize` lines of context around each change. Can be toggled from within Lazygit with `<ctrl+x>`.
+	ShowWholeFileInDiffView bool `yaml:"showWholeFileInDiffView"`
 	// The threshold for considering a file to be renamed, in percent. Can be changed from within Lazygit with the `(` and `)` keys.
 	RenameSimilarityThreshold int `yaml:"renameSimilarityThreshold" jsonschema:"minimum=0,maximum=100"`
 	// If true, do not spawn a separate process when using GPG
@@ -378,9 +380,17 @@ type GitConfig struct {
 	TruncateCopiedCommitHashesTo int `yaml:"truncateCopiedCommitHashesTo"`
 }
 
+// Git has no option to show the whole file, so ask for more context than any file has
+// lines. It must stay well below 2^31: git keeps it in an int, and xdiff doubles it in
+// a long, which is 32 bits on Windows.
+const wholeFileDiffContextSize = 100_000_000
+
 // EffectiveDiffContextSize returns the number of lines of context that diffs show
 // around each change.
 func (c *GitConfig) EffectiveDiffContextSize() uint64 {
+	if c.ShowWholeFileInDiffView {
+		return wholeFileDiffContextSize
+	}
 	return c.DiffContextSize
 }
 
@@ -580,6 +590,7 @@ type KeybindingUniversalConfig struct {
 	ToggleWhitespaceInDiffView        Keybinding `yaml:"toggleWhitespaceInDiffView"`
 	IncreaseContextInDiffView         Keybinding `yaml:"increaseContextInDiffView"`
 	DecreaseContextInDiffView         Keybinding `yaml:"decreaseContextInDiffView"`
+	ToggleWholeFileInDiffView         Keybinding `yaml:"toggleWholeFileInDiffView"`
 	IncreaseRenameSimilarityThreshold Keybinding `yaml:"increaseRenameSimilarityThreshold"`
 	DecreaseRenameSimilarityThreshold Keybinding `yaml:"decreaseRenameSimilarityThreshold"`
 	OpenDiffTool                      Keybinding `yaml:"openDiffTool"`
@@ -993,6 +1004,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 			AllBranchesLogCmds:           []string{"git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=medium"},
 			IgnoreWhitespaceInDiffView:   false,
 			DiffContextSize:              3,
+			ShowWholeFileInDiffView:      false,
 			RenameSimilarityThreshold:    50,
 			DisableForcePushing:          false,
 			CommitPrefixes:               map[string][]CommitPrefixConfig(nil),
@@ -1102,6 +1114,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 				ToggleWhitespaceInDiffView:        Keybinding{"<ctrl+w>"},
 				IncreaseContextInDiffView:         Keybinding{"}"},
 				DecreaseContextInDiffView:         Keybinding{"{"},
+				ToggleWholeFileInDiffView:         Keybinding{"<ctrl+x>"},
 				IncreaseRenameSimilarityThreshold: Keybinding{")"},
 				DecreaseRenameSimilarityThreshold: Keybinding{"("},
 				OpenDiffTool:                      Keybinding{"<ctrl+t>"},

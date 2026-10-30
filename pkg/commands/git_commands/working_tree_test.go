@@ -201,6 +201,7 @@ func TestWorkingTreeDiff(t *testing.T) {
 		cached              bool
 		ignoreWhitespace    bool
 		contextSize         uint64
+		showWholeFile       bool
 		similarityThreshold int
 		runner              *oscommands.FakeCmdObjRunner
 	}
@@ -299,6 +300,22 @@ func TestWorkingTreeDiff(t *testing.T) {
 				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=17", "--find-renames=50%", "--submodule", "--color=always", "--", "test.txt"}, expectedResult, nil),
 		},
 		{
+			testName: "Show diff of the whole file",
+			file: &models.File{
+				Path:             "test.txt",
+				HasStagedChanges: false,
+				Tracked:          true,
+			},
+			mode:                DiffModeRendered,
+			cached:              false,
+			ignoreWhitespace:    false,
+			contextSize:         17,
+			showWholeFile:       true,
+			similarityThreshold: 50,
+			runner: oscommands.NewFakeRunner(t).
+				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=100000000", "--find-renames=50%", "--submodule", "--color=always", "--", "test.txt"}, expectedResult, nil),
+		},
+		{
 			testName: "Show diff with custom similarity threshold",
 			file: &models.File{
 				Path:             "test.txt",
@@ -320,6 +337,7 @@ func TestWorkingTreeDiff(t *testing.T) {
 			userConfig := config.GetDefaultConfig()
 			userConfig.Git.IgnoreWhitespaceInDiffView = s.ignoreWhitespace
 			userConfig.Git.DiffContextSize = s.contextSize
+			userConfig.Git.ShowWholeFileInDiffView = s.showWholeFile
 			userConfig.Git.RenameSimilarityThreshold = s.similarityThreshold
 			repoPaths := RepoPaths{
 				worktreePath: "/path/to/worktree",

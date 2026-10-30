@@ -32,7 +32,7 @@ The `command` of a `stdinFilter` or `extDiff` renderer is a [Go template](https:
 - `{{width}}`: the width of the view that the diff is rendered into.
 - `{{colorScheme}}`: `dark` or `light`, depending on whether the terminal has a dark or a light background. Lazygit asks the terminal about this; if yours doesn't tell, set `gui.colorScheme`.
 - `{{columnWidth}}` (only for `stdinFilter`): the width of one side of a side-by-side rendering, e.g. for `ydiff -p cat -s -w {{columnWidth}}`.
-- `{{diffContext}}` (only for `extDiff`): lazygit's current diff context size, the value controlled by the `{`/`}` keybindings.
+- `{{diffContext}}` (only for `extDiff`): lazygit's current diff context size, the value controlled by the `{`/`}` keybindings. While the whole file is shown (`<ctrl+x>`), it is a number larger than any file's line count.
 
 A variable can also be written with a leading dot, as in `{{.width}}`. The command can use template expressions too; for example, `delta --paging=never {{if gt .width 160}}--side-by-side{{end}}` shows the diff side by side only when there is room for it, or `delta --syntax-theme={{if eq .colorScheme "light"}}Github{{else}}Dracula{{end}}` picks a different syntax theme based on the background.
 

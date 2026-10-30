@@ -64,7 +64,11 @@ func (self *ContextLinesController) Decrease() error {
 
 func (self *ContextLinesController) applyChange() error {
 	self.c.Toast(fmt.Sprintf(self.c.Tr.DiffContextSizeChanged, self.c.UserConfig().Git.DiffContextSize))
+	self.rerenderDiff()
+	return nil
+}
 
+func (self *ContextLinesController) rerenderDiff() {
 	currentContext := self.c.Context().CurrentSide()
 	// The diff is about to be rendered again with more or less context around
 	// each change, which reads as the lines you were looking at moving up or down
@@ -72,5 +76,4 @@ func (self *ContextLinesController) applyChange() error {
 	self.c.Helpers().DiffLine.PreserveDiffPositionOnRerender(self.c.Contexts().Normal.GetView())
 	self.c.Helpers().DiffLine.PreserveDiffPositionOnRerender(self.c.Contexts().NormalSecondary.GetView())
 	currentContext.HandleRenderToMain()
-	return nil
 }

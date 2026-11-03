@@ -27,6 +27,16 @@ func TestParseNumstat(t *testing.T) {
 			},
 		},
 		{
+			name:   "rename",
+			output: "3\t1\t\x00before\x00after\x00",
+			expected: map[string]FileDiff{
+				/* EXPECTED:
+				"after": {LinesAdded: 3, LinesDeleted: 1},
+				ACTUAL: */
+				"": {LinesAdded: 3, LinesDeleted: 1},
+			},
+		},
+		{
 			name:   "records of the same file",
 			output: "2\t1\tfile\x001\t3\tfile\x00",
 			expected: map[string]FileDiff{

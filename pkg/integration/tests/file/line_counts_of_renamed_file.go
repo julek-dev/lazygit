@@ -23,10 +23,7 @@ var LineCountsOfRenamedFile = NewIntegrationTest(NewIntegrationTestArgs{
 		t.Views().Files().
 			IsFocused().
 			Lines(
-				/* EXPECTED:
 				Equals("R  original → renamed +1"),
-				ACTUAL: */
-				Equals("R  original → renamed"),
 			)
 	},
 })

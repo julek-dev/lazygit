@@ -262,6 +262,7 @@ var tests = []*components.IntegrationTest{
 	file.Gitignore,
 	file.GitignoreSpecialCharacters,
 	file.LineCountsOfHalfStagedRename,
+	file.LineCountsOfRenameBelowDefaultThreshold,
 	file.LineCountsOfRenameChangedInWorktree,
 	file.LineCountsOfRenamedFile,
 	file.PaneShownAgainStartsAtTheTop,

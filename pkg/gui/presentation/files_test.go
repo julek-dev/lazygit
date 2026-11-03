@@ -21,13 +21,14 @@ func toStringSlice(str string) []string {
 
 func TestRenderFileTree(t *testing.T) {
 	scenarios := []struct {
-		name            string
-		root            *filetree.FileNode
-		files           []*models.File
-		collapsedPaths  []string
-		showLineChanges bool
-		showRootItem    bool
-		expected        []string
+		name             string
+		root             *filetree.FileNode
+		files            []*models.File
+		submoduleConfigs []*models.SubmoduleConfig
+		collapsedPaths   []string
+		showLineChanges  bool
+		showRootItem     bool
+		expected         []string
 	}{
 		{
 			name:     "nil node",
@@ -58,6 +59,20 @@ func TestRenderFileTree(t *testing.T) {
 				"   M test2 +1",
 				"   M test3 -1",
 				"   M test4",
+			},
+		},
+		{
+			name: "numstat of a submodule",
+			files: []*models.File{
+				{Path: "sub", ShortStatus: " M", LinesAdded: 1, LinesDeleted: 1},
+			},
+			submoduleConfigs: []*models.SubmoduleConfig{{Name: "sub", Path: "sub"}},
+			showLineChanges:  true,
+			expected: []string{
+				/* EXPECTED:
+				" M sub (submodule)",
+				ACTUAL: */
+				" M sub (submodule) +1 -1",
 			},
 		},
 		{
@@ -141,7 +156,7 @@ M  file1
 			for _, path := range s.collapsedPaths {
 				viewModel.ToggleCollapsed(path)
 			}
-			result := RenderFileTree(viewModel, nil, false, s.showLineChanges, &config.CustomIconsConfig{}, s.showRootItem, common.Tr)
+			result := RenderFileTree(viewModel, s.submoduleConfigs, false, s.showLineChanges, &config.CustomIconsConfig{}, s.showRootItem, common.Tr)
 			assert.EqualValues(t, s.expected, result)
 		})
 	}

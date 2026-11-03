@@ -7,7 +7,7 @@ type CommitFile struct {
 	// For a renamed file, the path it was renamed from; empty otherwise.
 	PreviousPath string
 
-	ChangeStatus string // e.g. 'A' for added or 'M' for modified. This is based on the result from git diff --name-status
+	ChangeStatus string // e.g. 'A' for added or 'M' for modified. This is based on the result from git diff --raw
 }
 
 func (f *CommitFile) ID() string {

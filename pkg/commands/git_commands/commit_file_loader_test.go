@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetCommitFilesFromFilenames(t *testing.T) {
+func TestGetCommitFilesFromRawDiff(t *testing.T) {
 	tests := []struct {
 		testName string
 		input    string
@@ -20,49 +20,40 @@ func TestGetCommitFilesFromFilenames(t *testing.T) {
 		},
 		{
 			testName: "one file",
-			input:    "MM\x00Myfile\x00",
+			input:    ":100644 100644 1234567 89abcde M\x00Myfile\x00",
 			output: []*models.CommitFile{
 				{
 					Path:         "Myfile",
-					ChangeStatus: "MM",
+					ChangeStatus: "M",
 				},
 			},
 		},
 		{
-			testName: "two files",
-			input:    "MM\x00Myfile\x00M \x00MyOtherFile\x00",
+			testName: "several files",
+			input: ":100644 100644 1234567 89abcde M\x00Myfile\x00" +
+				":000000 100644 0000000 89abcde A\x00MyOtherFile\x00" +
+				":100644 000000 1234567 0000000 D\x00YetAnother\x00",
 			output: []*models.CommitFile{
 				{
 					Path:         "Myfile",
-					ChangeStatus: "MM",
+					ChangeStatus: "M",
 				},
 				{
 					Path:         "MyOtherFile",
-					ChangeStatus: "M ",
-				},
-			},
-		},
-		{
-			testName: "three files",
-			input:    "MM\x00Myfile\x00M \x00MyOtherFile\x00 M\x00YetAnother\x00",
-			output: []*models.CommitFile{
-				{
-					Path:         "Myfile",
-					ChangeStatus: "MM",
-				},
-				{
-					Path:         "MyOtherFile",
-					ChangeStatus: "M ",
+					ChangeStatus: "A",
 				},
 				{
 					Path:         "YetAnother",
-					ChangeStatus: " M",
+					ChangeStatus: "D",
 				},
 			},
 		},
 		{
-			testName: "a rename among regular files",
-			input:    "M\x00Myfile\x00R100\x00before\x00after\x00A\x00Added\x00",
+			testName: "a rename and a copy among regular files",
+			input: ":100644 100644 1234567 89abcde M\x00Myfile\x00" +
+				":100644 100644 1234567 1234567 R100\x00before\x00after\x00" +
+				":100644 100644 1234567 89abcde C075\x00original\x00copy\x00" +
+				":000000 100644 0000000 89abcde A\x00Added\x00",
 			output: []*models.CommitFile{
 				{
 					Path:         "Myfile",
@@ -74,8 +65,23 @@ func TestGetCommitFilesFromFilenames(t *testing.T) {
 					ChangeStatus: "R",
 				},
 				{
+					Path:         "copy",
+					PreviousPath: "original",
+					ChangeStatus: "C",
+				},
+				{
 					Path:         "Added",
 					ChangeStatus: "A",
+				},
+			},
+		},
+		{
+			testName: "a path that starts with a colon",
+			input:    ":100644 100644 1234567 89abcde M\x00:file\x00",
+			output: []*models.CommitFile{
+				{
+					Path:         ":file",
+					ChangeStatus: "M",
 				},
 			},
 		},
@@ -83,7 +89,7 @@ func TestGetCommitFilesFromFilenames(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.testName, func(t *testing.T) {
-			result := getCommitFilesFromFilenames(test.input)
+			result := getCommitFilesFromRawDiff(test.input)
 			assert.Equal(t, test.output, result)
 		})
 	}

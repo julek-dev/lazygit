@@ -23,12 +23,12 @@ func NewCommitFileLoader(common *common.Common, cmd oscommands.ICmdObjBuilder) *
 
 // GetFilesInDiff get the specified commit files
 func (self *CommitFileLoader) GetFilesInDiff(from string, to string, reverse bool) ([]*models.CommitFile, error) {
-	filenames, err := self.diff(from, to, reverse)
+	output, err := self.diff(from, to, reverse)
 	if err != nil {
 		return nil, err
 	}
 
-	return getCommitFilesFromFilenames(filenames), nil
+	return getCommitFilesFromRawDiff(output), nil
 }
 
 // diff lists the files of the diff between from and to.
@@ -37,7 +37,7 @@ func (self *CommitFileLoader) diff(from string, to string, reverse bool) (string
 		ParseableDiffPrefixes().
 		Arg("--submodule").
 		Arg("--no-ext-diff").
-		Arg("--name-status").
+		Arg("--raw").
 		Arg("-z").
 		Arg(fmt.Sprintf("--find-renames=%d%%", self.UserConfig().Git.RenameSimilarityThreshold)).
 		ArgIf(reverse, "-R").
@@ -48,23 +48,28 @@ func (self *CommitFileLoader) diff(from string, to string, reverse bool) (string
 	return self.cmd.New(cmdArgs).DontLog().RunWithOutput()
 }
 
-// filenames string is something like "MM\x00file1\x00MU\x00file2\x00AA\x00file3\x00"
-// so we need to split it by the null character and then map each status-name pair
-// to a commit file. Renames (and copies) are special: their status is followed by
-// two paths (the old one and the new one) rather than one, e.g.
-// "R100\x00old\x00new\x00".
-func getCommitFilesFromFilenames(filenames string) []*models.CommitFile {
-	fields := strings.Split(strings.TrimRight(filenames, "\x00"), "\x00")
-	if len(fields) == 1 {
-		return []*models.CommitFile{}
-	}
+// getCommitFilesFromRawDiff parses what `git diff --raw -z` prints: for each file, a
+// record such as ":100644 100644 1234567 89abcde M\x00file\x00", whose last field
+// is the file's status. A rename or a copy has a similarity score appended to its
+// status, and two paths, the old one and the new one, e.g.
+// ":100644 100644 1234567 89abcde R100\x00old\x00new\x00".
+func getCommitFilesFromRawDiff(output string) []*models.CommitFile {
+	fields := strings.Split(output, "\x00")
+	commitFiles := []*models.CommitFile{}
+	for i := 0; i < len(fields) && strings.HasPrefix(fields[i], ":"); {
+		// The modes, the object names and the status
+		meta := strings.Fields(fields[i][1:])
+		if len(meta) != 5 {
+			break
+		}
+		changeStatus := meta[4]
 
-	commitFiles := make([]*models.CommitFile, 0, len(fields)/2)
-	for i := 0; i < len(fields)-1; {
-		changeStatus := fields[i]
 		if changeStatus[0] == 'R' || changeStatus[0] == 'C' {
-			// The status has a similarity score appended (e.g. "R100"); drop it
-			// so the rest of the code only has to deal with a plain "R" or "C".
+			if i+2 >= len(fields) {
+				break
+			}
+			// Drop the similarity score, so the rest of the code only has to deal
+			// with a plain "R" or "C".
 			commitFiles = append(commitFiles, &models.CommitFile{
 				ChangeStatus: changeStatus[:1],
 				PreviousPath: fields[i+1],
@@ -72,7 +77,9 @@ func getCommitFilesFromFilenames(filenames string) []*models.CommitFile {
 			})
 			i += 3
 		} else {
-			// typical result looks like 'A my_file' meaning my_file was added
+			if i+1 >= len(fields) {
+				break
+			}
 			commitFiles = append(commitFiles, &models.CommitFile{
 				ChangeStatus: changeStatus,
 				Path:         fields[i+1],

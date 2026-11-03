@@ -64,7 +64,7 @@ func (self *FileLoader) GetStatusFiles(opts GetStatusFileOptions) []*models.File
 
 	fileDiffs := map[string]FileDiff{}
 	if self.GitCommon.Common.UserConfig().Gui.ShowNumstatInFilesView {
-		fileDiffs, err = self.getFileDiffs()
+		fileDiffs, err = self.getFileDiffs(opts.NoRenames)
 		if err != nil {
 			self.Log.Error(err)
 		}
@@ -189,15 +189,15 @@ func (self *FileLoader) getConflictMarkerSizes(paths []string) (map[string]int, 
 	return markerSizes, nil
 }
 
-func (self *FileLoader) getFileDiffs() (map[string]FileDiff, error) {
+func (self *FileLoader) getFileDiffs(noRenames bool) (map[string]FileDiff, error) {
 	// git status pairs up renames between HEAD and the index, which a diff
 	// between HEAD and the worktree can do differently. So the staged and the
 	// unstaged changes are counted apart, and a file gets the sum of both.
-	staged, err := self.gitDiffNumStat(true)
+	staged, err := self.gitDiffNumStat(true, noRenames)
 	if err != nil {
 		return nil, err
 	}
-	unstaged, err := self.gitDiffNumStat(false)
+	unstaged, err := self.gitDiffNumStat(false, noRenames)
 	if err != nil {
 		return nil, err
 	}
@@ -219,12 +219,13 @@ type FileStatus struct {
 	PreviousPath string
 }
 
-func (self *FileLoader) gitDiffNumStat(cached bool) (string, error) {
+func (self *FileLoader) gitDiffNumStat(cached bool, noRenames bool) (string, error) {
 	return self.cmd.New(
 		NewGitCmd("diff").
 			ArgIf(cached, "--cached").
 			Arg("--numstat").
 			Arg("-z").
+			Arg(self.renamesArg(noRenames)).
 			ToArgv(),
 	).DontLog().RunWithOutput()
 }

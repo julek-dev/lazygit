@@ -24,12 +24,8 @@ var LineCountsOfHalfStagedRename = NewIntegrationTest(NewIntegrationTestArgs{
 			IsFocused().
 			Lines(
 				Equals("▼ /"),
-				/* EXPECTED:
 				Equals("   D original -10"),
 				Equals("  A  renamed +11"),
-				ACTUAL: */
-				Equals("   D original"),
-				Equals("  A  renamed"),
 			)
 	},
 })

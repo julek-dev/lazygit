@@ -11,7 +11,8 @@ type FileDiff struct {
 }
 
 // parseNumstat parses the records that `git diff --numstat -z` prints, split at
-// their NULs, into the counts of each file by its path.
+// their NULs, into the counts of each file by its path. A file that several
+// records name gets the sum of their counts.
 func parseNumstat(fields []string) map[string]FileDiff {
 	fileDiffs := map[string]FileDiff{}
 	for _, line := range fields {
@@ -31,8 +32,8 @@ func parseNumstat(fields []string) map[string]FileDiff {
 
 		fileName := splitLine[2]
 		fileDiffs[fileName] = FileDiff{
-			LinesAdded:   linesAdded,
-			LinesDeleted: linesDeleted,
+			LinesAdded:   fileDiffs[fileName].LinesAdded + linesAdded,
+			LinesDeleted: fileDiffs[fileName].LinesDeleted + linesDeleted,
 		}
 	}
 

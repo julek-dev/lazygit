@@ -27,6 +27,13 @@ func TestParseNumstat(t *testing.T) {
 			},
 		},
 		{
+			name:   "records of the same file",
+			output: "2\t1\tfile\x001\t3\tfile\x00",
+			expected: map[string]FileDiff{
+				"file": {LinesAdded: 3, LinesDeleted: 4},
+			},
+		},
+		{
 			name:   "binary files",
 			output: "-\t-\timage.png\x00-\t-\t\x00old.png\x00new.png\x001\t1\tfile\x00",
 			expected: map[string]FileDiff{

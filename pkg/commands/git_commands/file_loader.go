@@ -190,12 +190,19 @@ func (self *FileLoader) getConflictMarkerSizes(paths []string) (map[string]int, 
 }
 
 func (self *FileLoader) getFileDiffs() (map[string]FileDiff, error) {
-	diffs, err := self.gitDiffNumStat()
+	// git status pairs up renames between HEAD and the index, which a diff
+	// between HEAD and the worktree can do differently. So the staged and the
+	// unstaged changes are counted apart, and a file gets the sum of both.
+	staged, err := self.gitDiffNumStat(true)
+	if err != nil {
+		return nil, err
+	}
+	unstaged, err := self.gitDiffNumStat(false)
 	if err != nil {
 		return nil, err
 	}
 
-	return parseNumstat(strings.Split(diffs, "\x00")), nil
+	return parseNumstat(strings.Split(staged+unstaged, "\x00")), nil
 }
 
 // GitStatus returns the file status of the repo
@@ -212,12 +219,12 @@ type FileStatus struct {
 	PreviousPath string
 }
 
-func (self *FileLoader) gitDiffNumStat() (string, error) {
+func (self *FileLoader) gitDiffNumStat(cached bool) (string, error) {
 	return self.cmd.New(
 		NewGitCmd("diff").
+			ArgIf(cached, "--cached").
 			Arg("--numstat").
 			Arg("-z").
-			Arg("HEAD").
 			ToArgv(),
 	).DontLog().RunWithOutput()
 }

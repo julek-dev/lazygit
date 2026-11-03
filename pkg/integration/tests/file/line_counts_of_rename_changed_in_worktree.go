@@ -23,10 +23,7 @@ var LineCountsOfRenameChangedInWorktree = NewIntegrationTest(NewIntegrationTestA
 		t.Views().Files().
 			IsFocused().
 			Lines(
-				/* EXPECTED:
 				Equals("RM original → renamed +3 -5"),
-				ACTUAL: */
-				Equals("RM original → renamed +3"),
 			)
 	},
 })

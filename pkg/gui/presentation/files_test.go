@@ -69,10 +69,7 @@ func TestRenderFileTree(t *testing.T) {
 			submoduleConfigs: []*models.SubmoduleConfig{{Name: "sub", Path: "sub"}},
 			showLineChanges:  true,
 			expected: []string{
-				/* EXPECTED:
 				" M sub (submodule)",
-				ACTUAL: */
-				" M sub (submodule) +1 -1",
 			},
 		},
 		{

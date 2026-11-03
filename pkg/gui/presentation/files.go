@@ -180,7 +180,9 @@ func getFileLine(
 		output += theme.DefaultTextColor.Sprint(" (" + label + ")")
 	}
 
-	if file != nil && showNumstat {
+	// For a submodule, git counts a line for the commit it was at and one for the
+	// commit it is at, which says nothing about how much changed.
+	if file != nil && showNumstat && !isSubmodule {
 		if lineChanges := formatLineChanges(file.LinesAdded, file.LinesDeleted); lineChanges != "" {
 			output += " " + lineChanges
 		}

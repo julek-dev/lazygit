@@ -1091,7 +1091,8 @@ func (self *RefreshHelper) refreshCommitFilesContext(captured capturedCommitFile
 		return nil
 	}
 
-	files, err := env.git.Loaders.CommitFileLoader.GetFilesInDiff(captured.from, captured.to, captured.reverse)
+	files, err := env.git.Loaders.CommitFileLoader.GetFilesInDiff(
+		captured.from, captured.to, captured.reverse, self.c.UserConfig().Gui.ShowNumstatInCommitFilesView)
 	if err != nil {
 		return err
 	}

@@ -514,6 +514,11 @@ git:
   # from within Lazygit with the `{` and `}` keys.
   diffContextSize: 3
 
+  # If true, diffs show the whole file instead of `diffContextSize` lines of
+  # context around each change. Can be toggled from within Lazygit with
+  # `<ctrl+x>`.
+  showWholeFileInDiffView: false
+
   # The threshold for considering a file to be renamed, in percent. Can be changed
   # from within Lazygit with the `(` and `)` keys.
   renameSimilarityThreshold: 50
@@ -770,6 +775,7 @@ keybinding:
     toggleWhitespaceInDiffView: <ctrl+w>
     increaseContextInDiffView: '}'
     decreaseContextInDiffView: '{'
+    toggleWholeFileInDiffView: <ctrl+x>
     increaseRenameSimilarityThreshold: )
     decreaseRenameSimilarityThreshold: (
     openDiffTool: <ctrl+t>

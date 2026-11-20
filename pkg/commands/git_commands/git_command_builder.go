@@ -170,16 +170,31 @@ func DiffIgnoresWhitespace(cmdArgs []string) bool {
 	return slices.Contains(cmdArgs, ignoreWhitespaceArg)
 }
 
-func (self *GitCommandBuilder) AddCommonDiffArgs(diffRendererConfigManager *config.DiffRendererConfigManager, userConfig *config.UserConfig, mode DiffMode) *GitCommandBuilder {
+func contextSizeArg(contextSize uint64) string {
+	return fmt.Sprintf("--unified=%d", contextSize)
+}
+
+// DiffHasContextSize reports whether a diff command, given by its arguments, shows the
+// given number of lines of context around each change.
+func DiffHasContextSize(cmdArgs []string, contextSize uint64) bool {
+	return slices.Contains(cmdArgs, contextSizeArg(contextSize))
+}
+
+// AddCommonDiffArgs adds the arguments that the user's settings ask of every diff. combined
+// says whether git may show the diff as a combined one: a merge commit's, or an unmerged
+// file's against its sides.
+func (self *GitCommandBuilder) AddCommonDiffArgs(diffRendererConfigManager *config.DiffRendererConfigManager, userConfig *config.UserConfig, mode DiffMode, combined bool) *GitCommandBuilder {
 	contextSize := userConfig.Git.EffectiveDiffContextSize()
 	if mode == DiffModePatch {
 		contextSize = userConfig.Git.PatchDiffContextSize()
+	} else if combined {
+		contextSize = userConfig.Git.CombinedDiffContextSize()
 	}
 	useExtDiff := mode == DiffModeRendered && diffRendererConfigManager.GetDiffRendererType() == config.DiffRendererType_ExtDiff
 
 	return self.
 		ArgIfElse(useExtDiff, "--ext-diff", "--no-ext-diff").
-		Arg(fmt.Sprintf("--unified=%d", contextSize)).
+		Arg(contextSizeArg(contextSize)).
 		// Ignoring whitespace is about what the user wants to see, so it holds for a raw
 		// diff as much as for a rendered one, and not for the uncoloured diffs that
 		// patches are built from and their lines looked up in, where a diff that leaves

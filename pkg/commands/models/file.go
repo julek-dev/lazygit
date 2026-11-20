@@ -68,6 +68,7 @@ type IFile interface {
 	GetPath() string
 	GetPreviousPath() string
 	GetIsFile() bool
+	GetHasMergeConflicts() bool
 }
 
 func (f *File) IsRename() bool {
@@ -133,6 +134,10 @@ func (f *File) GetPreviousPath() string {
 
 func (f *File) GetIsFile() bool {
 	return true
+}
+
+func (f *File) GetHasMergeConflicts() bool {
+	return f.HasMergeConflicts
 }
 
 func (f *File) GetMergeStateDescription(tr *i18n.TranslationSet) string {

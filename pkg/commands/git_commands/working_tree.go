@@ -392,13 +392,15 @@ func (self *WorkingTreeCommands) WorktreeFileDiff(file *models.File, mode DiffMo
 // WorktreeFileDiffCmdObj returns a command object for diffing the given paths
 // in the working tree. node is the item they belong to; all it decides is
 // whether git has to compare against /dev/null, which is the case for a file
-// that isn't in the index yet.
+// that isn't in the index yet, and whether git shows the unstaged changes of an
+// unmerged file as a combined diff.
 func (self *WorkingTreeCommands) WorktreeFileDiffCmdObj(node models.IFile, mode DiffMode, cached bool, paths []string) *oscommands.CmdObj {
 	noIndex := !node.GetIsTracked() && !node.GetHasStagedChanges() && !cached && node.GetIsFile()
+	combined := !cached && node.GetHasMergeConflicts()
 
 	cmdArgs := NewGitCmd("diff").
 		ParseableDiffPrefixes().
-		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode).
+		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode, combined).
 		Arg("--submodule").
 		Arg(fmt.Sprintf("--color=%s", mode.colorArg(self.diffRendererConfigManager))).
 		ArgIf(cached, "--cached").
@@ -471,7 +473,7 @@ func (self *WorkingTreeCommands) ShowFileDiff(from string, to string, reverse bo
 func (self *WorkingTreeCommands) ShowFileDiffCmdObj(from string, to string, reverse bool, fileNames []string, mode DiffMode) *oscommands.CmdObj {
 	cmdArgs := NewGitCmd("diff").
 		ParseableDiffPrefixes().
-		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode).
+		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode, false).
 		Arg("--submodule").
 		Arg(fmt.Sprintf("--color=%s", mode.colorArg(self.diffRendererConfigManager))).
 		Arg(from).

@@ -349,6 +349,8 @@ type GitConfig struct {
 	IgnoreWhitespaceInDiffView bool `yaml:"ignoreWhitespaceInDiffView"`
 	// The number of lines of context to show around each diff hunk. Can be changed from within Lazygit with the `{` and `}` keys.
 	DiffContextSize uint64 `yaml:"diffContextSize"`
+	// If true, diffs show the whole file instead of `diffContextSize` lines of context around each change. Can be toggled from within Lazygit with `<ctrl+x>`.
+	ShowWholeFileInDiffView bool `yaml:"showWholeFileInDiffView"`
 	// The threshold for considering a file to be renamed, in percent. Can be changed from within Lazygit with the `(` and `)` keys.
 	RenameSimilarityThreshold int `yaml:"renameSimilarityThreshold" jsonschema:"minimum=0,maximum=100"`
 	// If true, do not spawn a separate process when using GPG
@@ -379,20 +381,34 @@ type GitConfig struct {
 }
 
 // Git keeps the context size in an int, and xdiff doubles it in a long, which is 32 bits
-// on Windows, so a larger one wraps around. This many lines is more than any file has.
+// on Windows, so a larger one wraps around. This many lines is more than any file has,
+// so it is also the size that shows the whole file.
 const maxDiffContextSize = 100_000_000
 
 // EffectiveDiffContextSize returns the number of lines of context that diffs show
 // around each change.
 func (c *GitConfig) EffectiveDiffContextSize() uint64 {
+	if c.ShowWholeFileInDiffView {
+		return maxDiffContextSize
+	}
 	return c.clampedDiffContextSize()
 }
 
 // PatchDiffContextSize returns the number of lines of context around each change in the
-// diffs that patches are built from. Git needs context to tell where a patch goes, so
-// they have at least git's default, however little the diffs shown have.
+// diffs that patches are built from. It is the size chosen, even while the diffs shown
+// have the whole file, which would make every patch the whole file; and git needs
+// context to tell where a patch goes, so it is at least git's default, however little
+// the diffs shown have.
 func (c *GitConfig) PatchDiffContextSize() uint64 {
 	return max(c.clampedDiffContextSize(), 3)
+}
+
+// CombinedDiffContextSize returns the number of lines of context around each change in a
+// combined diff, which git shows for a merge commit or an unmerged file. Context decides
+// which changes such a diff shows at all, so it is the size chosen, even while other
+// diffs show the whole file.
+func (c *GitConfig) CombinedDiffContextSize() uint64 {
+	return c.clampedDiffContextSize()
 }
 
 func (c *GitConfig) clampedDiffContextSize() uint64 {
@@ -595,6 +611,7 @@ type KeybindingUniversalConfig struct {
 	ToggleWhitespaceInDiffView        Keybinding `yaml:"toggleWhitespaceInDiffView"`
 	IncreaseContextInDiffView         Keybinding `yaml:"increaseContextInDiffView"`
 	DecreaseContextInDiffView         Keybinding `yaml:"decreaseContextInDiffView"`
+	ToggleWholeFileInDiffView         Keybinding `yaml:"toggleWholeFileInDiffView"`
 	IncreaseRenameSimilarityThreshold Keybinding `yaml:"increaseRenameSimilarityThreshold"`
 	DecreaseRenameSimilarityThreshold Keybinding `yaml:"decreaseRenameSimilarityThreshold"`
 	OpenDiffTool                      Keybinding `yaml:"openDiffTool"`
@@ -1008,6 +1025,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 			AllBranchesLogCmds:           []string{"git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=medium"},
 			IgnoreWhitespaceInDiffView:   false,
 			DiffContextSize:              3,
+			ShowWholeFileInDiffView:      false,
 			RenameSimilarityThreshold:    50,
 			DisableForcePushing:          false,
 			CommitPrefixes:               map[string][]CommitPrefixConfig(nil),
@@ -1117,6 +1135,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 				ToggleWhitespaceInDiffView:        Keybinding{"<ctrl+w>"},
 				IncreaseContextInDiffView:         Keybinding{"}"},
 				DecreaseContextInDiffView:         Keybinding{"{"},
+				ToggleWholeFileInDiffView:         Keybinding{"<ctrl+x>"},
 				IncreaseRenameSimilarityThreshold: Keybinding{")"},
 				DecreaseRenameSimilarityThreshold: Keybinding{"("},
 				OpenDiffTool:                      Keybinding{"<ctrl+t>"},

@@ -16,6 +16,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` ( `` | Decrease rename similarity threshold | Decrease the similarity threshold for a deletion and addition pair to be treated as a rename.<br><br>The default can be changed in the config file with the key 'git.renameSimilarityThreshold'. |
 | `` } `` | Zwiększ rozmiar kontekstu w widoku różnic | Increase the amount of the context shown around changes in the diff view.<br><br>The default can be changed in the config file with the key 'git.diffContextSize'. |
 | `` { `` | Zmniejsz rozmiar kontekstu w widoku różnic | Decrease the amount of the context shown around changes in the diff view.<br><br>The default can be changed in the config file with the key 'git.diffContextSize'. |
+| `` <ctrl+x> `` | Toggle whole file | Toggle whether the diff view shows the whole file instead of only the lines around changes.<br><br>The default can be changed in the config file with the key 'git.showWholeFileInDiffView'. |
 | `` : `` | Wykonaj polecenie w powłoce | Bring up a prompt where you can enter a shell command to execute. |
 | `` <ctrl+p> `` | Wyświetl opcje niestandardowej łatki |  |
 | `` m `` | Pokaż opcje scalania/rebase | Pokaż opcje do przerwania/kontynuowania/pominięcia bieżącego scalania/rebase. |

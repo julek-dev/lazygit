@@ -84,7 +84,7 @@ func (self *StashCommands) ShowStashEntryCmdObj(index int, mode DiffMode) *oscom
 	// "-u" is the same as "--include-untracked", but the latter fails in older git versions for some reason
 	cmdArgs := NewGitCmd("stash").Arg("show").
 		ParseableDiffPrefixes().
-		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode).
+		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode, false).
 		Arg("-p").
 		Arg("--stat").
 		Arg("-u").

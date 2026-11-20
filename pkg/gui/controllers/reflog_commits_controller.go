@@ -66,7 +66,7 @@ func (self *ReflogCommitsController) GetOnRenderToMain() func() {
 				task = types.NewRenderStringTask("No reflog history")
 			} else {
 				mode := self.c.Helpers().DiffLine.MainViewDiffMode()
-				cmdObj := self.c.Git().Commit.ShowCmdObj(commit.Hash(), self.c.Helpers().Diff.FilterPathsForCommit(commit), mode)
+				cmdObj := self.c.Git().Commit.ShowCmdObj(commit.Hash(), self.c.Helpers().Diff.FilterPathsForCommit(commit), mode, commit.IsMerge())
 
 				task = types.NewMainViewDiffTask(cmdObj.GetCmd(), mode)
 			}

@@ -459,6 +459,11 @@
           "description": "The number of lines of context to show around each diff hunk. Can be changed from within Lazygit with the `{` and `}` keys.",
           "default": 3
         },
+        "showWholeFileInDiffView": {
+          "type": "boolean",
+          "description": "If true, diffs show the whole file instead of `diffContextSize` lines of context around each change. Can be toggled from within Lazygit with `\u003cctrl+x\u003e`.",
+          "default": false
+        },
         "renameSimilarityThreshold": {
           "type": "integer",
           "maximum": 100,
@@ -3878,6 +3883,20 @@
             }
           ],
           "default": "{"
+        },
+        "toggleWholeFileInDiffView": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "default": "\u003cctrl+x\u003e"
         },
         "increaseRenameSimilarityThreshold": {
           "oneOf": [

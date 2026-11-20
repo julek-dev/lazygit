@@ -46,6 +46,10 @@ func (self *FileNode) GetHasStagedChanges() bool {
 	return self.SomeFile(func(file *models.File) bool { return file.HasStagedChanges })
 }
 
+func (self *FileNode) GetHasMergeConflicts() bool {
+	return self.SomeFile(func(file *models.File) bool { return file.HasMergeConflicts })
+}
+
 func (self *FileNode) GetHasInlineMergeConflicts() bool {
 	return self.SomeFile(func(file *models.File) bool {
 		if !file.HasInlineMergeConflicts {

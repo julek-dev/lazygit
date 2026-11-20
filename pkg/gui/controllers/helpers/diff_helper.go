@@ -86,7 +86,7 @@ func (self *DiffHelper) GetUpdateTaskForRenderingCommitsDiff(commit *models.Comm
 		return types.NewMainViewDiffTaskWithPrefix(cmdObj.GetCmd(), types.StaticPrefix(prefix), mode)
 	}
 
-	cmdObj := self.c.Git().Commit.ShowCmdObj(commit.Hash(), self.FilterPathsForCommit(commit), mode)
+	cmdObj := self.c.Git().Commit.ShowCmdObj(commit.Hash(), self.FilterPathsForCommit(commit), mode, commit.IsMerge())
 	return types.NewMainViewDiffTask(cmdObj.GetCmd(), mode)
 }
 
@@ -217,6 +217,11 @@ func (self *DiffHelper) DiffOptionsSubTitle(task types.UpdateTask) string {
 	var options []string
 	if git_commands.DiffIgnoresWhitespace(cmd.Args) {
 		options = append(options, self.c.Tr.IgnoreWhitespaceDiffViewSubTitle)
+	}
+	// A combined diff doesn't show the whole file whatever is asked of diffs.
+	gitConfig := self.c.UserConfig().Git
+	if gitConfig.ShowWholeFileInDiffView && git_commands.DiffHasContextSize(cmd.Args, gitConfig.EffectiveDiffContextSize()) {
+		options = append(options, self.c.Tr.WholeFileDiffViewSubTitle)
 	}
 
 	return strings.Join(options, " ")

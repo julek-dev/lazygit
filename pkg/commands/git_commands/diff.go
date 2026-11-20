@@ -147,7 +147,7 @@ func (self *DiffCommands) DiffCmdObj(diffArgs []string, mode DiffMode) *oscomman
 	return self.cmd.New(
 		NewGitCmd("diff").
 			ParseableDiffPrefixes().
-			AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode).
+			AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode, false).
 			Arg("--submodule").
 			Arg(fmt.Sprintf("--color=%s", mode.colorArg(self.diffRendererConfigManager))).
 			Arg(diffArgs...).
@@ -167,7 +167,7 @@ func (self *DiffCommands) DiffCmdObj(diffArgs []string, mode DiffMode) *oscomman
 func (self *DiffCommands) CustomPatchDiffCmdObj(dir string, mode DiffMode) *oscommands.CmdObj {
 	return self.cmd.New(
 		NewGitCmd("diff").
-			AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode).
+			AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode, false).
 			NoLineEndingConversion().
 			Arg("--no-index").
 			Arg("--no-prefix").

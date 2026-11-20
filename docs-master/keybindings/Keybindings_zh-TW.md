@@ -16,6 +16,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` ( `` | 降低重新命名相似度閾值 | 降低將刪除和新增對視為重新命名所需的相似度閾值。<br><br>預設值可在設定檔中透過鍵 'git.renameSimilarityThreshold' 更改。 |
 | `` } `` | 增加差異檢視中顯示變更周圍上下文的大小 | 增加差異檢視中變更周圍顯示的上下文量。<br><br>預設值可在設定檔中透過鍵 'git.diffContextSize' 更改。 |
 | `` { `` | 減小差異檢視中顯示變更周圍上下文的大小 | 減少差異檢視中變更周圍顯示的上下文量。<br><br>預設值可在設定檔中透過鍵 'git.diffContextSize' 更改。 |
+| `` <ctrl+x> `` | Toggle whole file | Toggle whether the diff view shows the whole file instead of only the lines around changes.<br><br>The default can be changed in the config file with the key 'git.showWholeFileInDiffView'. |
 | `` : `` | 執行 Shell 命令 | 調出可輸入shell命令執行的提示符。 |
 | `` <ctrl+p> `` | 檢視自訂補丁選項 |  |
 | `` m `` | 查看合併/變基選項 | 檢視目前合併或變基的中止、繼續、跳過選項。 |

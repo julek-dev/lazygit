@@ -240,10 +240,12 @@ func (self *CommitCommands) AmendHeadCmdObj() *oscommands.CmdObj {
 	return self.cmd.New(cmdArgs)
 }
 
-func (self *CommitCommands) ShowCmdObj(hash string, filterPaths []string, mode DiffMode) *oscommands.CmdObj {
+// ShowCmdObj returns the command that shows the given commit. isMerge says whether it
+// is a merge commit, whose diff git shows as a combined one.
+func (self *CommitCommands) ShowCmdObj(hash string, filterPaths []string, mode DiffMode, isMerge bool) *oscommands.CmdObj {
 	cmdArgs := NewGitCmd("show").
 		ParseableDiffPrefixes().
-		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode).
+		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode, isMerge).
 		Arg("--submodule").
 		Arg("--color=" + mode.colorArg(self.diffRendererConfigManager)).
 		Arg("--stat").

@@ -16,6 +16,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` ( `` | Decrease rename similarity threshold | Decrease the similarity threshold for a deletion and addition pair to be treated as a rename.<br><br>The default can be changed in the config file with the key 'git.renameSimilarityThreshold'. |
 | `` } `` | Diff 보기의 변경 사항 주위에 표시되는 컨텍스트의 크기를 늘리기 | Increase the amount of the context shown around changes in the diff view.<br><br>The default can be changed in the config file with the key 'git.diffContextSize'. |
 | `` { `` | Diff 보기의 변경 사항 주위에 표시되는 컨텍스트 크기 줄이기 | Decrease the amount of the context shown around changes in the diff view.<br><br>The default can be changed in the config file with the key 'git.diffContextSize'. |
+| `` <ctrl+x> `` | Toggle whole file | Toggle whether the diff view shows the whole file instead of only the lines around changes.<br><br>The default can be changed in the config file with the key 'git.showWholeFileInDiffView'. |
 | `` : `` | Execute shell command | Bring up a prompt where you can enter a shell command to execute. |
 | `` <ctrl+p> `` | 커스텀 Patch 옵션 보기 |  |
 | `` m `` | View merge/rebase options | View options to abort/continue/skip the current merge/rebase. |

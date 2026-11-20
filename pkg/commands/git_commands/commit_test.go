@@ -253,6 +253,8 @@ func TestCommitShowCmdObj(t *testing.T) {
 		testName            string
 		filterPaths         []string
 		contextSize         uint64
+		showWholeFile       bool
+		isMerge             bool
 		similarityThreshold int
 		ignoreWhitespace    bool
 		diffRendererConfig  *config.DiffRendererConfig
@@ -282,6 +284,27 @@ func TestCommitShowCmdObj(t *testing.T) {
 			testName:            "Show diff with custom context size",
 			filterPaths:         []string{},
 			contextSize:         77,
+			similarityThreshold: 50,
+			ignoreWhitespace:    false,
+			diffRendererConfig:  nil,
+			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=77", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+		},
+		{
+			testName:            "Show diff of the whole file",
+			filterPaths:         []string{},
+			contextSize:         77,
+			showWholeFile:       true,
+			similarityThreshold: 50,
+			ignoreWhitespace:    false,
+			diffRendererConfig:  nil,
+			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=100000000", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--"},
+		},
+		{
+			testName:            "Show diff of a merge commit while showing the whole file",
+			filterPaths:         []string{},
+			contextSize:         77,
+			showWholeFile:       true,
+			isMerge:             true,
 			similarityThreshold: 50,
 			ignoreWhitespace:    false,
 			diffRendererConfig:  nil,
@@ -333,6 +356,7 @@ func TestCommitShowCmdObj(t *testing.T) {
 			}
 			userConfig.Git.IgnoreWhitespaceInDiffView = s.ignoreWhitespace
 			userConfig.Git.DiffContextSize = s.contextSize
+			userConfig.Git.ShowWholeFileInDiffView = s.showWholeFile
 			userConfig.Git.RenameSimilarityThreshold = s.similarityThreshold
 
 			runner := oscommands.NewFakeRunner(t).ExpectGitArgs(s.expected, "", nil)
@@ -341,7 +365,7 @@ func TestCommitShowCmdObj(t *testing.T) {
 			}
 			instance := buildCommitCommands(commonDeps{userConfig: userConfig, appState: &config.AppState{}, runner: runner, repoPaths: &repoPaths})
 
-			assert.NoError(t, instance.ShowCmdObj("1234567890", s.filterPaths, DiffModeRendered).Run())
+			assert.NoError(t, instance.ShowCmdObj("1234567890", s.filterPaths, DiffModeRendered, s.isMerge).Run())
 			runner.CheckForMissingCalls()
 		})
 	}

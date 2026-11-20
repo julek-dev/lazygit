@@ -275,9 +275,16 @@ func (self *DiffLineHelper) IsSingleHunkForWholeFile(view *gocui.View, changeVie
 // change — the nearest above, so that hunk mode always has a block to select. ok is
 // false only when the diff holds no change line at all.
 func (self *DiffLineHelper) ChangeBlockBounds(view *gocui.View, anchorViewLine int) (int, int, bool) {
+	start, end, _, ok := self.changeBlockBounds(view, anchorViewLine)
+	return start, end, ok
+}
+
+// changeBlockBounds is ChangeBlockBounds, also saying whether it fell back: whether the
+// diff, as far as it has been read, has no block at or below the anchor.
+func (self *DiffLineHelper) changeBlockBounds(view *gocui.View, anchorViewLine int) (int, int, bool, bool) {
 	anchor, ok := view.BufferLineForViewLine(anchorViewLine)
 	if !ok {
-		return 0, 0, false
+		return 0, 0, false, false
 	}
 
 	isChange := self.changeLines(view)
@@ -285,11 +292,12 @@ func (self *DiffLineHelper) ChangeBlockBounds(view *gocui.View, anchorViewLine i
 	for start < len(isChange) && !isChange[start] {
 		start++
 	}
-	if start >= len(isChange) {
+	fellBack := start >= len(isChange)
+	if fellBack {
 		for start = min(anchor, len(isChange)-1); start >= 0 && !isChange[start]; start-- {
 		}
 		if start < 0 {
-			return 0, 0, false
+			return 0, 0, true, false
 		}
 	}
 	end := start
@@ -305,9 +313,9 @@ func (self *DiffLineHelper) ChangeBlockBounds(view *gocui.View, anchorViewLine i
 	// wrapped is highlighted to its end rather than only where it begins.
 	endView, endOk := view.LastViewLineForBufferLine(end)
 	if !startOk || !endOk {
-		return 0, 0, false
+		return 0, 0, fellBack, false
 	}
-	return startView, endView, true
+	return startView, endView, fellBack, true
 }
 
 // AdjacentChangeBlock returns the view line to move to for next/previous change-block

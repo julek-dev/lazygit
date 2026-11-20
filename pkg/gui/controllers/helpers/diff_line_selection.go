@@ -181,7 +181,31 @@ func (self *DiffLineHelper) SelectChangeBlock(
 	pane types.DiffPaneContext, changeViewLine int, scrollIntoView bool,
 ) {
 	view := pane.GetView()
-	start, end, ok := self.ChangeBlockBounds(view, changeViewLine)
+	start, end, fellBack, ok := self.changeBlockBounds(view, changeViewLine)
+	if fellBack {
+		// A diff is read only as far as the view needs, and the block below the line can
+		// lie beyond that: a lot of context can come before it. So the fallback is only
+		// taken once there is nothing more to read.
+		if manager := self.c.GetViewBufferManagerForView(view); manager != nil && manager.IsLoading() {
+			manager.ReadToEnd(func() {
+				self.c.OnUIThread(func() error {
+					start, end, _, ok := self.changeBlockBounds(view, changeViewLine)
+					self.selectChangeBlockAt(pane, changeViewLine, start, end, ok, scrollIntoView)
+					return nil
+				})
+			})
+			return
+		}
+	}
+	self.selectChangeBlockAt(pane, changeViewLine, start, end, ok, scrollIntoView)
+}
+
+// selectChangeBlockAt selects the block that changeBlockBounds found around the given
+// line, or the line alone when it found none.
+func (self *DiffLineHelper) selectChangeBlockAt(
+	pane types.DiffPaneContext, changeViewLine int, start int, end int, ok bool, scrollIntoView bool,
+) {
+	view := pane.GetView()
 	if !ok {
 		pane.DiffSelectState().Mode = types.DiffSelectModeLine
 		view.CancelRangeSelect()

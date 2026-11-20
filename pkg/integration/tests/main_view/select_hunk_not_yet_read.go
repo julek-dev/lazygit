@@ -44,12 +44,8 @@ var SelectHunkNotYetRead = NewIntegrationTest(NewIntegrationTestArgs{
 			NavigateToLine(Contains(" line0100")).
 			Press(keys.Main.ToggleSelectHunk).
 			SelectedLines(
-				/* EXPECTED:
 				Contains("-line2800"),
 				Contains("+LINE2800"),
-				ACTUAL: */
-				Contains("-line0005"),
-				Contains("+LINE0005"),
 			)
 	},
 })

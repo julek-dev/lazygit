@@ -44,12 +44,8 @@ var NextFileSelectsAChangeNotYetRead = NewIntegrationTest(NewIntegrationTestArgs
 			).
 			Press(keys.Main.NextFile).
 			SelectedLines(
-				/* EXPECTED:
 				Contains("-line550"),
 				Contains("+LINE550"),
-				ACTUAL: */
-				Contains("-two"),
-				Contains("+TWO"),
 			)
 	},
 })

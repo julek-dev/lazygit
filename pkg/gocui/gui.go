@@ -1474,9 +1474,10 @@ func (g *Gui) drawFrameCorners(v *View, fgColor, bgColor Attribute) {
 }
 
 // drawTitle draws the title of the view.
-func (g *Gui) drawTitle(v *View, fgColor, bgColor Attribute) {
+// drawTitle draws the title of the view, and returns the column just past it.
+func (g *Gui) drawTitle(v *View, fgColor, bgColor Attribute) int {
 	if v.y0 < 0 || v.y0 >= g.maxY {
-		return
+		return v.x0 + 1
 	}
 
 	tabs := v.Tabs
@@ -1538,26 +1539,42 @@ func (g *Gui) drawTitle(v *View, fgColor, bgColor Attribute) {
 		g.SetRune(x, v.y0, ch, currentFgColor, currentBgColor)
 		x += uniseg.StringWidth(string(ch))
 	}
+	return x
 }
 
-// drawSubtitle draws the subtitle of the view.
-func (g *Gui) drawSubtitle(v *View, fgColor, bgColor Attribute) {
+// drawSubtitle draws the subtitle of the view towards the right of its top edge, never
+// over its title, which ends at titleEnd: it is cut short where there isn't room for it.
+func (g *Gui) drawSubtitle(v *View, titleEnd int, fgColor, bgColor Attribute) {
 	if v.y0 < 0 || v.y0 >= g.maxY {
 		return
 	}
 
-	start := v.x1 - 5 - uniseg.StringWidth(v.Subtitle)
-	if start < v.x0 {
-		return
-	}
+	end := v.x1 - 5
+	start := max(end-uniseg.StringWidth(v.Subtitle), titleEnd+1)
 	x := start
-	for _, ch := range v.Subtitle {
-		if x >= v.x1 {
-			break
-		}
+	for _, ch := range truncateToWidth(v.Subtitle, end-start) {
 		g.SetRune(x, v.y0, ch, fgColor, bgColor)
 		x += uniseg.StringWidth(string(ch))
 	}
+}
+
+// truncateToWidth cuts s short to fit in width cells, with an ellipsis to show that it
+// was cut. Where not even that fits, it is empty.
+func truncateToWidth(s string, width int) string {
+	if uniseg.StringWidth(s) <= width {
+		return s
+	}
+	if width < 2 {
+		return ""
+	}
+	truncated := ""
+	for _, ch := range s {
+		if uniseg.StringWidth(truncated+string(ch)) > width-1 {
+			break
+		}
+		truncated += string(ch)
+	}
+	return truncated + "…"
 }
 
 // drawListFooter draws the footer of a list view, showing something like '1 of 10'
@@ -1734,11 +1751,12 @@ func (g *Gui) draw(v *View) {
 
 		g.drawFrameEdges(v, frameColor, bgColor)
 		g.drawFrameCorners(v, frameColor, bgColor)
+		titleEnd := v.x0 + 1
 		if v.Title != "" || len(v.Tabs) > 0 {
-			g.drawTitle(v, fgColor, bgColor)
+			titleEnd = g.drawTitle(v, fgColor, bgColor)
 		}
 		if v.Subtitle != "" {
-			g.drawSubtitle(v, fgColor, bgColor)
+			g.drawSubtitle(v, titleEnd, fgColor, bgColor)
 		}
 		if v.Footer != "" && g.ShowListFooter {
 			g.drawListFooter(v, fgColor, bgColor)

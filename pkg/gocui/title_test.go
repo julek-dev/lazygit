@@ -24,9 +24,6 @@ func TestSubtitleLeavesTheTitleAlone(t *testing.T) {
 	assert.NoError(t, g.flush())
 
 	assert.Equal(t,
-		/* EXPECTED:
 		"┌─Unstaged changes─(ignoring white…─────┐",
-		ACTUAL: */
-		"┌─Unstaged cha(ignoring whitespace)─────┐",
 		topEdge(g, v))
 }

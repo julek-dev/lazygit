@@ -234,6 +234,7 @@ var tests = []*components.IntegrationTest{
 	diff.DiffNonStickyRange,
 	diff.DiffRendererMetadata,
 	diff.IgnoreWhitespace,
+	diff.IgnoreWhitespaceSubtitle,
 	diff.RenameSimilarityThresholdChange,
 	diff.RenderThroughAPipe,
 	diff.StatFollowsAScreenModeChange,

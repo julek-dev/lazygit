@@ -15,14 +15,16 @@ const (
 	// DiffModeRaw is git's own coloured diff, for showing a diff whose rendered form
 	// couldn't be acted on.
 	DiffModeRaw
-	// DiffModePlain is git's own uncoloured diff, for building patches from and copying
-	// text out of rather than for looking at.
+	// DiffModePlain is git's own uncoloured diff, for copying text out of and finding
+	// the lines shown in, rather than for looking at.
 	DiffModePlain
+	// DiffModePatch is git's own uncoloured diff, for building patches from.
+	DiffModePatch
 )
 
 // colorArg returns the value to pass to git's --color for this mode. Rendered output is
 // coloured however the renderer wants its input; a raw diff gets git's own colour, which
-// is the point of it; a plain one is for reading as text, not for looking at.
+// is the point of it; the others are for reading as text, not for looking at.
 func (self DiffMode) colorArg(diffRendererConfigManager *config.DiffRendererConfigManager) string {
 	switch self {
 	case DiffModeRendered:

@@ -169,9 +169,10 @@ func (self *GitCommandBuilder) AddCommonDiffArgs(diffRendererConfigManager *conf
 		ArgIfElse(useExtDiff, "--ext-diff", "--no-ext-diff").
 		Arg(fmt.Sprintf("--unified=%d", contextSize)).
 		// Ignoring whitespace is about what the user wants to see, so it holds for a raw
-		// diff as much as for a rendered one. Patches are built from a plain diff,
-		// where a diff that leaves changes out would apply to nothing.
-		ArgIf(mode != DiffModePlain && userConfig.Git.IgnoreWhitespaceInDiffView, "--ignore-all-space").
+		// diff as much as for a rendered one, and not for the uncoloured diffs that
+		// patches are built from and their lines looked up in, where a diff that leaves
+		// changes out would apply to nothing.
+		ArgIf(mode != DiffModePlain && mode != DiffModePatch && userConfig.Git.IgnoreWhitespaceInDiffView, "--ignore-all-space").
 		Arg(fmt.Sprintf("--find-renames=%d%%", userConfig.Git.RenameSimilarityThreshold)).
 		// The renderer's own arguments to git — a word diff, say — are part of the
 		// rendering, so they go with it.

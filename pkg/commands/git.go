@@ -138,7 +138,7 @@ func NewGitCommandAux(
 		func(from string, to string, reverse bool, filename string, previousPath string) (string, error) {
 			// A patch is built from git's own diff: what a diff renderer would make of it
 			// is a picture of it, not something that can be applied.
-			return workingTreeCommands.ShowFileDiff(from, to, reverse, filename, previousPath, git_commands.DiffModePlain)
+			return workingTreeCommands.ShowFileDiff(from, to, reverse, filename, previousPath, git_commands.DiffModePatch)
 		},
 		func() (string, error) {
 			// Under lazygit's own temp dir, so that it honours the configured location

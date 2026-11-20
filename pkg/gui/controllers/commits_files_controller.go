@@ -196,9 +196,8 @@ func (self *CommitFilesController) GetOnRenderToMain() func() {
 		self.c.RenderToMainViews(types.RefreshMainOpts{
 			Pair: self.c.MainViewPairs().Normal,
 			Main: &types.ViewUpdateOpts{
-				Title:    self.c.Tr.Patch,
-				SubTitle: self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
-				Task:     task,
+				Title: self.c.Tr.Patch,
+				Task:  task,
 			},
 			Secondary: secondaryPatchPanelUpdateOpts(self.c),
 		})

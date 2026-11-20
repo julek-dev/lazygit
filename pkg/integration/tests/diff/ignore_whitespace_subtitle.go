@@ -24,10 +24,7 @@ var IgnoreWhitespaceSubtitle = NewIntegrationTest(NewIntegrationTestArgs{
 
 		t.Views().Main().
 			Content(Contains("No changed files")).
-			/* EXPECTED:
 			Subtitle(Equals(""))
-			ACTUAL: */
-			Subtitle(Equals("(ignoring whitespace)"))
 
 		t.Views().ReflogCommits().
 			Focus().
@@ -38,10 +35,7 @@ var IgnoreWhitespaceSubtitle = NewIntegrationTest(NewIntegrationTestArgs{
 
 		t.Views().Main().
 			Title(Equals("Reflog Entry")).
-			/* EXPECTED:
 			Subtitle(Equals("(ignoring whitespace)"))
-			ACTUAL: */
-			Subtitle(Equals(""))
 
 		t.Views().Commits().
 			Focus().
@@ -60,9 +54,6 @@ var IgnoreWhitespaceSubtitle = NewIntegrationTest(NewIntegrationTestArgs{
 
 		t.Views().Secondary().
 			Title(Equals("Custom patch")).
-			/* EXPECTED:
 			Subtitle(Equals("(ignoring whitespace)"))
-			ACTUAL: */
-			Subtitle(Equals(""))
 	},
 })

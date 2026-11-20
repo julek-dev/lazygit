@@ -2,6 +2,7 @@ package git_commands
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/jesseduffield/lazygit/pkg/commands/oscommands"
@@ -161,6 +162,14 @@ func (self *GitCommandBuilder) ParseableDiffPrefixes() *GitCommandBuilder {
 		Config("diff.dstPrefix=b/")
 }
 
+const ignoreWhitespaceArg = "--ignore-all-space"
+
+// DiffIgnoresWhitespace reports whether a diff command, given by its arguments, leaves out
+// changes to whitespace.
+func DiffIgnoresWhitespace(cmdArgs []string) bool {
+	return slices.Contains(cmdArgs, ignoreWhitespaceArg)
+}
+
 func (self *GitCommandBuilder) AddCommonDiffArgs(diffRendererConfigManager *config.DiffRendererConfigManager, userConfig *config.UserConfig, mode DiffMode) *GitCommandBuilder {
 	contextSize := userConfig.Git.EffectiveDiffContextSize()
 	if mode == DiffModePatch {
@@ -175,7 +184,7 @@ func (self *GitCommandBuilder) AddCommonDiffArgs(diffRendererConfigManager *conf
 		// diff as much as for a rendered one, and not for the uncoloured diffs that
 		// patches are built from and their lines looked up in, where a diff that leaves
 		// changes out would apply to nothing.
-		ArgIf(mode != DiffModePlain && mode != DiffModePatch && userConfig.Git.IgnoreWhitespaceInDiffView, "--ignore-all-space").
+		ArgIf(mode != DiffModePlain && mode != DiffModePatch && userConfig.Git.IgnoreWhitespaceInDiffView, ignoreWhitespaceArg).
 		Arg(fmt.Sprintf("--find-renames=%d%%", userConfig.Git.RenameSimilarityThreshold)).
 		// The renderer's own arguments to git — a word diff, say — are part of the
 		// rendering, so they go with it.

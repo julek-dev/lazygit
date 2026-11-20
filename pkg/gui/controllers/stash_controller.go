@@ -104,9 +104,8 @@ func (self *StashController) GetOnRenderToMain() func() {
 			self.c.RenderToMainViews(types.RefreshMainOpts{
 				Pair: self.c.MainViewPairs().Normal,
 				Main: &types.ViewUpdateOpts{
-					Title:    "Stash",
-					SubTitle: self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
-					Task:     task,
+					Title: "Stash",
+					Task:  task,
 				},
 				Secondary: secondaryPatchPanelUpdateOpts(self.c),
 			})

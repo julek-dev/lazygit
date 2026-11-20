@@ -151,9 +151,8 @@ func (self *DiffHelper) RenderDiff() {
 	self.c.RenderToMainViews(types.RefreshMainOpts{
 		Pair: self.c.MainViewPairs().Normal,
 		Main: &types.ViewUpdateOpts{
-			Title:    "Diff",
-			SubTitle: self.IgnoringWhitespaceSubTitle(),
-			Task:     task,
+			Title: "Diff",
+			Task:  task,
 		},
 	})
 }
@@ -206,8 +205,11 @@ func (self *DiffHelper) WithDiffModeCheck(f func()) {
 	}
 }
 
-func (self *DiffHelper) IgnoringWhitespaceSubTitle() string {
-	if self.c.UserConfig().Git.IgnoreWhitespaceInDiffView {
+// IgnoringWhitespaceSubTitle is the subtitle of a view showing what the given task
+// renders. It says that whitespace is ignored where the task runs a diff that ignores it,
+// whichever panel the diff is for, and is empty for anything else.
+func (self *DiffHelper) IgnoringWhitespaceSubTitle(task types.UpdateTask) string {
+	if cmd := types.CmdOf(task); cmd != nil && git_commands.DiffIgnoresWhitespace(cmd.Args) {
 		return self.c.Tr.IgnoreWhitespaceDiffViewSubTitle
 	}
 

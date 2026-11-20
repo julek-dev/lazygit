@@ -52,9 +52,8 @@ func (self *SubCommitsController) GetOnRenderToMain() func() {
 			self.c.RenderToMainViews(types.RefreshMainOpts{
 				Pair: self.c.MainViewPairs().Normal,
 				Main: &types.ViewUpdateOpts{
-					Title:    "Commit",
-					SubTitle: self.c.Helpers().Diff.IgnoringWhitespaceSubTitle(),
-					Task:     task,
+					Title: "Commit",
+					Task:  task,
 				},
 				Secondary: secondaryPatchPanelUpdateOpts(self.c),
 			})

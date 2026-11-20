@@ -34,8 +34,7 @@ type MainViewPairs struct {
 }
 
 type ViewUpdateOpts struct {
-	Title    string
-	SubTitle string
+	Title string
 
 	Task UpdateTask
 
@@ -137,6 +136,17 @@ type RunDiffRendererTask struct {
 }
 
 func (t *RunDiffRendererTask) IsUpdateTask() {}
+
+// CmdOf returns the command that an update task runs, or nil for one that runs none.
+func CmdOf(task UpdateTask) *exec.Cmd {
+	switch task := task.(type) {
+	case *RunCommandTask:
+		return task.Cmd
+	case *RunDiffRendererTask:
+		return task.Cmd
+	}
+	return nil
+}
 
 func NewRunDiffRendererTask(cmd *exec.Cmd) *RunDiffRendererTask {
 	return &RunDiffRendererTask{Cmd: cmd}

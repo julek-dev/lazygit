@@ -384,6 +384,13 @@ func (c *GitConfig) EffectiveDiffContextSize() uint64 {
 	return c.DiffContextSize
 }
 
+// PatchDiffContextSize returns the number of lines of context around each change in the
+// diffs that patches are built from. Git needs context to tell where a patch goes, so
+// they have at least git's default, however little the diffs shown have.
+func (c *GitConfig) PatchDiffContextSize() uint64 {
+	return max(c.DiffContextSize, 3)
+}
+
 type DiffRendererCommandType string
 
 func (DiffRendererCommandType) JSONSchemaExtend(schema *jsonschema.Schema) {

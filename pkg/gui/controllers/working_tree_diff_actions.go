@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/jesseduffield/generics/set"
@@ -54,11 +53,6 @@ func (self *WorkingTreeDiffActions) showsStagedSide(pane types.DiffPaneContext) 
 // PrimaryAction stages the selected diff lines, or takes them back out of the index
 // when what is selected is the staged side of the diff.
 func (self *WorkingTreeDiffActions) PrimaryAction(pane types.DiffPaneContext, firstBufferLine int, lastBufferLine int) error {
-	if self.c.UserConfig().Git.DiffContextSize == 0 {
-		return fmt.Errorf(self.c.Tr.Actions.NotEnoughContextToStage,
-			self.c.UserConfig().Keybinding.Universal.IncreaseContextInDiffView)
-	}
-
 	linesByFile, onStagedSide, err := self.diffLineSelection(pane, firstBufferLine, lastBufferLine)
 	if err != nil {
 		return err
@@ -77,11 +71,6 @@ func (self *WorkingTreeDiffActions) PrimaryAction(pane types.DiffPaneContext, fi
 // staged side, out of the index, which is where "discard this" means "I don't want it
 // staged".
 func (self *WorkingTreeDiffActions) DiscardSelection(pane types.DiffPaneContext, firstBufferLine int, lastBufferLine int) error {
-	if self.c.UserConfig().Git.DiffContextSize == 0 {
-		return fmt.Errorf(self.c.Tr.Actions.NotEnoughContextToDiscard,
-			self.c.UserConfig().Keybinding.Universal.IncreaseContextInDiffView)
-	}
-
 	linesByFile, onStagedSide, err := self.diffLineSelection(pane, firstBufferLine, lastBufferLine)
 	if err != nil {
 		return err

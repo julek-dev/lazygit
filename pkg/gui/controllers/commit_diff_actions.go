@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/jesseduffield/generics/set"
 	"github.com/jesseduffield/lazygit/pkg/commands/git_commands"
@@ -91,11 +90,6 @@ func (self *CommitDiffActions) PrimaryAction(pane types.DiffPaneContext, firstBu
 	// come back out of it.
 	if self.showsCustomPatch(pane) {
 		return self.removePatchLines(pane, firstBufferLine, lastBufferLine)
-	}
-
-	if self.c.UserConfig().Git.DiffContextSize == 0 {
-		return fmt.Errorf(self.c.Tr.Actions.NotEnoughContextForCustomPatch,
-			self.c.UserConfig().Keybinding.Universal.IncreaseContextInDiffView)
 	}
 
 	target := self.target()
@@ -299,13 +293,6 @@ func (self *CommitDiffActions) DiscardSelectionDisabledReason(pane types.DiffPan
 	}
 	if self.c.Git().Status.WorkingTreeState().Any() {
 		return &types.DisabledReason{Text: self.c.Tr.CantPatchWhileRebasingError, ShowErrorInPanel: true}
-	}
-	if self.c.UserConfig().Git.DiffContextSize == 0 {
-		return &types.DisabledReason{
-			Text: fmt.Sprintf(self.c.Tr.Actions.NotEnoughContextToRemoveLines,
-				self.c.UserConfig().Keybinding.Universal.IncreaseContextInDiffView),
-			ShowErrorInPanel: true,
-		}
 	}
 	return nil
 }

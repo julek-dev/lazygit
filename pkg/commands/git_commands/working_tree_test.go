@@ -254,6 +254,36 @@ func TestWorkingTreeDiff(t *testing.T) {
 				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=never", "--", "test.txt"}, expectedResult, nil),
 		},
 		{
+			testName: "for a patch",
+			file: &models.File{
+				Path:             "test.txt",
+				HasStagedChanges: false,
+				Tracked:          true,
+			},
+			mode:                DiffModePatch,
+			cached:              false,
+			ignoreWhitespace:    true,
+			contextSize:         17,
+			similarityThreshold: 50,
+			runner: oscommands.NewFakeRunner(t).
+				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=17", "--find-renames=50%", "--submodule", "--color=never", "--", "test.txt"}, expectedResult, nil),
+		},
+		{
+			testName: "for a patch, with less context than git's default",
+			file: &models.File{
+				Path:             "test.txt",
+				HasStagedChanges: false,
+				Tracked:          true,
+			},
+			mode:                DiffModePatch,
+			cached:              false,
+			ignoreWhitespace:    false,
+			contextSize:         0,
+			similarityThreshold: 50,
+			runner: oscommands.NewFakeRunner(t).
+				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=never", "--", "test.txt"}, expectedResult, nil),
+		},
+		{
 			testName: "File not tracked and file has no staged changes",
 			file: &models.File{
 				Path:             "test.txt",

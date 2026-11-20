@@ -378,17 +378,25 @@ type GitConfig struct {
 	TruncateCopiedCommitHashesTo int `yaml:"truncateCopiedCommitHashesTo"`
 }
 
+// Git keeps the context size in an int, and xdiff doubles it in a long, which is 32 bits
+// on Windows, so a larger one wraps around. This many lines is more than any file has.
+const maxDiffContextSize = 100_000_000
+
 // EffectiveDiffContextSize returns the number of lines of context that diffs show
 // around each change.
 func (c *GitConfig) EffectiveDiffContextSize() uint64 {
-	return c.DiffContextSize
+	return c.clampedDiffContextSize()
 }
 
 // PatchDiffContextSize returns the number of lines of context around each change in the
 // diffs that patches are built from. Git needs context to tell where a patch goes, so
 // they have at least git's default, however little the diffs shown have.
 func (c *GitConfig) PatchDiffContextSize() uint64 {
-	return max(c.DiffContextSize, 3)
+	return max(c.clampedDiffContextSize(), 3)
+}
+
+func (c *GitConfig) clampedDiffContextSize() uint64 {
+	return min(c.DiffContextSize, maxDiffContextSize)
 }
 
 type DiffRendererCommandType string

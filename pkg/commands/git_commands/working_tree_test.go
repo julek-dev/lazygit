@@ -296,10 +296,7 @@ func TestWorkingTreeDiff(t *testing.T) {
 			contextSize:         1 << 31,
 			similarityThreshold: 50,
 			runner: oscommands.NewFakeRunner(t).
-				/* EXPECTED:
 				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=100000000", "--find-renames=50%", "--submodule", "--color=never", "--", "test.txt"}, expectedResult, nil),
-				ACTUAL: */
-				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=2147483648", "--find-renames=50%", "--submodule", "--color=never", "--", "test.txt"}, expectedResult, nil),
 		},
 		{
 			testName: "File not tracked and file has no staged changes",
@@ -359,10 +356,7 @@ func TestWorkingTreeDiff(t *testing.T) {
 			contextSize:         1 << 31,
 			similarityThreshold: 50,
 			runner: oscommands.NewFakeRunner(t).
-				/* EXPECTED:
 				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=100000000", "--find-renames=50%", "--submodule", "--color=always", "--", "test.txt"}, expectedResult, nil),
-				ACTUAL: */
-				ExpectGitArgs([]string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "diff", "--no-ext-diff", "--unified=2147483648", "--find-renames=50%", "--submodule", "--color=always", "--", "test.txt"}, expectedResult, nil),
 		},
 		{
 			testName: "Show diff with custom similarity threshold",

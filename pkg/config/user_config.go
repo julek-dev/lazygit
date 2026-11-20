@@ -378,6 +378,12 @@ type GitConfig struct {
 	TruncateCopiedCommitHashesTo int `yaml:"truncateCopiedCommitHashesTo"`
 }
 
+// EffectiveDiffContextSize returns the number of lines of context that diffs show
+// around each change.
+func (c *GitConfig) EffectiveDiffContextSize() uint64 {
+	return c.DiffContextSize
+}
+
 type DiffRendererCommandType string
 
 func (DiffRendererCommandType) JSONSchemaExtend(schema *jsonschema.Schema) {

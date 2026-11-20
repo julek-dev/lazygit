@@ -84,7 +84,7 @@ func (gui *Gui) newRenderTask(view *gocui.View, cmd *exec.Cmd, prefix types.Pref
 		diffRendererConfigManager := gui.stateAccessor.GetDiffRendererConfigManager()
 		values := config.DiffRendererValues{
 			Width:           width,
-			DiffContext:     gui.c.UserConfig().Git.DiffContextSize,
+			DiffContext:     gui.c.UserConfig().Git.EffectiveDiffContextSize(),
 			LightBackground: gui.terminalHasLightBackground(),
 		}
 		stdinFilter, stdinFilterErr := diffRendererConfigManager.GetStdinFilterCommand(values)

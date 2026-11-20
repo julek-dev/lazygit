@@ -66,7 +66,7 @@ func (gui *Gui) RefreshMainView(opts *types.ViewUpdateOpts, context types.Contex
 		view.Title = opts.Title
 	}
 
-	view.Subtitle = gui.helpers.Diff.IgnoringWhitespaceSubTitle(opts.Task)
+	view.Subtitle = gui.helpers.Diff.DiffOptionsSubTitle(opts.Task)
 
 	if mainContext := gui.mainContextForView(view); mainContext != nil {
 		mainContext.SetContentIsDiff(types.ContentIsDiff(opts.Task))

@@ -205,15 +205,21 @@ func (self *DiffHelper) WithDiffModeCheck(f func()) {
 	}
 }
 
-// IgnoringWhitespaceSubTitle is the subtitle of a view showing what the given task
-// renders. It says that whitespace is ignored where the task runs a diff that ignores it,
-// whichever panel the diff is for, and is empty for anything else.
-func (self *DiffHelper) IgnoringWhitespaceSubTitle(task types.UpdateTask) string {
-	if cmd := types.CmdOf(task); cmd != nil && git_commands.DiffIgnoresWhitespace(cmd.Args) {
-		return self.c.Tr.IgnoreWhitespaceDiffViewSubTitle
+// DiffOptionsSubTitle is the subtitle of a view showing what the given task renders. It
+// names the options that change what a diff shows, where the task runs a diff that they
+// apply to, whichever panel the diff is for, and is empty for anything else.
+func (self *DiffHelper) DiffOptionsSubTitle(task types.UpdateTask) string {
+	cmd := types.CmdOf(task)
+	if cmd == nil {
+		return ""
 	}
 
-	return ""
+	var options []string
+	if git_commands.DiffIgnoresWhitespace(cmd.Args) {
+		options = append(options, self.c.Tr.IgnoreWhitespaceDiffViewSubTitle)
+	}
+
+	return strings.Join(options, " ")
 }
 
 func (self *DiffHelper) OpenDiffToolForRef(selectedRef models.Ref) error {
